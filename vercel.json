@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "true",
-  "buildCommand": null,
-  "outputDirectory": ".",
+  "buildCommand": "rm -rf dist && mkdir -p dist/styles dist/scripts && cp index.html main.js config.js styles.css dist/ && cp styles/*.css dist/styles/ && cp scripts/silk-scroll-delay-bounce.js scripts/date-gold-rain.js scripts/hero-atmosphere.js dist/scripts/ && cp -r assets dist/ && rm -f dist/assets/*/*.md",
+  "outputDirectory": "dist",
   "headers": [
     {
       "source": "/(.*)",
