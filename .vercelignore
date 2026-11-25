@@ -1,0 +1,22 @@
+# Local development, QA, and private files
+node_modules/
+qa/
+tmp/
+data/
+.git/
+.env
+.env.*
+*.zip
+*.mp4
+*.wav
+*.log
+
+# Local Node backend & offline tools (production site runs statically on Vercel)
+server.mjs
+admin.html
+admin.js
+scripts/download-assets.mjs
+docs/
+README.md
+package.json
+package-lock.json

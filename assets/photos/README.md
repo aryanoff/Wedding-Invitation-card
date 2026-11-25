@@ -1,0 +1,1 @@
+Add your own gallery photos here: photo-1.jpg, photo-2.jpg, etc. If no local image is available, the demonstration's public gallery image link is used when possible. Edit the gallery array in config.js.

@@ -1,0 +1,298 @@
+/* Short, localized amber petal burst after the date reel settles. */
+.date-section {
+  position: relative;
+}
+
+.date-section .date-header {
+  margin-bottom: 12px;
+}
+
+.date-section .date-lotus {
+  width: clamp(255px, 34vw, 465px);
+}
+
+.date-section .date-stage {
+  position: relative;
+  width: min(96vw, 1050px);
+  max-width: 1050px;
+  gap: clamp(8px, 1.4vw, 20px);
+  margin-block: 34px 28px;
+}
+
+.date-section .date-elephant {
+  position: absolute;
+  display: block;
+  z-index: 4;
+  top: 10%;
+  width: clamp(105px, 18.4vw, 252px);
+  height: auto;
+  pointer-events: none;
+}
+.date-section .date-elephant--left { left: 0; transform: none; }
+.date-section .date-elephant--right { right: 0; transform: scaleX(-1); }
+
+.date-section .date-plaques {
+  gap: clamp(10px, 2.1vw, 28px);
+}
+
+/* The plaques are constructed as layered scalloped silhouettes so the label
+   tabs stay outside the shield instead of being clipped into generic cards. */
+.date-section .date-shield,
+.date-section .date-shield--center {
+  position: relative;
+  isolation: isolate;
+  width: clamp(100px, 16.85vw, 230px);
+  min-height: clamp(112px, 10.25vw, 140px);
+  padding: 22px 16px 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.date-section .date-shield::before,
+.date-section .date-shield::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  transform: none;
+  border: 0;
+  border-radius: 0;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 230 140' preserveAspectRatio='none'%3E%3Cpath d='M43 0H187Q201 0 203 16Q219 17 219 31Q230 33 230 46V94Q230 108 219 111Q218 125 203 126Q201 140 186 140H44Q29 140 27 126Q12 125 11 111Q0 108 0 94V46Q0 33 11 31Q11 17 27 16Q29 0 43 0Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+.date-section .date-shield::before {
+  z-index: -2;
+  background: linear-gradient(145deg, #f1cb82 0%, #a86c28 46%, #f7dda2 70%, #8c4d1b 100%);
+  filter: drop-shadow(0 10px 13px rgba(66, 5, 30, .3));
+}
+
+.date-section .date-shield::after {
+  z-index: -1;
+  inset: 2px;
+  background:
+    radial-gradient(ellipse at 50% 12%, rgba(188, 35, 89, .36), transparent 48%),
+    linear-gradient(165deg, #790936 0%, #57001f 56%, #400018 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 225, 166, .45), inset 0 -12px 26px rgba(32, 0, 12, .2);
+}
+
+.date-section .date-shield__label {
+  position: absolute;
+  z-index: 3;
+  top: -12px;
+  left: 50%;
+  min-width: 76px;
+  margin: 0;
+  padding: 3px 13px 2px;
+  transform: translateX(-50%);
+  border: 1px solid #c99952;
+  border-radius: 12px 12px 8px 8px;
+  background: #f5dec0;
+  color: #59142d;
+  box-shadow: 0 3px 7px rgba(72, 20, 29, .18);
+  font-size: 11px;
+  letter-spacing: .16em;
+}
+
+.date-section .date-shield__reel {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 62px;
+  margin-top: 4px;
+}
+
+.date-section .reel-value {
+  display: block;
+  width: 100%;
+  height: 100%;
+  line-height: 62px;
+  color: #f3ca7d;
+  font-size: clamp(32px, 4.5vw, 63px);
+  text-shadow: 0 2px 6px rgba(19, 0, 8, .7), 0 0 16px rgba(239, 191, 110, .15);
+}
+.date-section .reel-value span { display: block; height: 100%; }
+.date-section .date-stage.is-spinning .reel-value { filter: none; }
+.date-section .date-cta[hidden], .date-section .date-save-text[hidden] { display: none; }
+
+.date-save-text {
+  margin: 6px auto 0;
+  color: #681537;
+  font-family: var(--serif);
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-style: italic;
+  letter-spacing: .025em;
+  text-shadow: 0 2px 8px rgba(103, 40, 47, .13);
+}
+.date-save-text:focus { outline: none; }
+
+/* Keep the shimmer at the edges so dates stay legible. */
+.date-plaques.shimmer-active .date-shield__reel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 32%, #ffdb7736 50%, transparent 68%);
+  transform: translateX(-100%);
+  animation: plaquesShimmerSweep 1.35s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  pointer-events: none;
+  z-index: 10;
+}
+@keyframes plaquesShimmerSweep {
+  0% { transform: translateX(-100%); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 0.9; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.shahi-date-rain {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+.shahi-date-rain__petal {
+  --dx: 0px;
+  --dy: 150px;
+  --turn: 180deg;
+  position: absolute;
+  display: block;
+  left: var(--start-x);
+  top: var(--start-y);
+  width: var(--size);
+  height: calc(var(--size) * 0.72);
+  border-radius: 78% 24% 70% 27%;
+  opacity: 0;
+  transform-origin: 35% 70%;
+  animation: shahi-gold-fall var(--dur) ease-in var(--delay) forwards;
+}
+
+.shahi-date-rain__petal--gold {
+  background: radial-gradient(ellipse at 30% 22%, #fff4bc 0%, #ffc84b 30%, #da8516 76%, #9a5813 100%);
+  box-shadow: 0 0 5px rgba(255, 189, 46, .45);
+}
+
+.shahi-date-rain__petal--pink {
+  background: radial-gradient(ellipse at 30% 22%, #fff0f5 0%, #f472b6 35%, #db2777 75%, #9d174d 100%);
+  box-shadow: 0 0 5px rgba(244, 114, 182, .45);
+}
+
+.shahi-date-rain__petal--ruby {
+  background: radial-gradient(ellipse at 30% 22%, #ffe4e6 0%, #e11d48 35%, #be123c 75%, #881337 100%);
+  box-shadow: 0 0 5px rgba(225, 29, 72, .45);
+}
+
+.shahi-date-rain__petal--amber {
+  background: radial-gradient(ellipse at 30% 22%, #fef3c7 0%, #f59e0b 35%, #d97706 75%, #92400e 100%);
+  box-shadow: 0 0 5px rgba(245, 158, 11, .45);
+}
+
+/* Compact festive sky spark fireworks */
+.shahi-firework-spark {
+  position: absolute;
+  width: clamp(3px, .47vw, 6px);
+  height: clamp(3px, .47vw, 6px);
+  border-radius: 50%;
+  pointer-events: none;
+  background: var(--spark-color, #be6218);
+  box-shadow: 0 0 6px var(--spark-glow, rgba(255, 215, 0, 0.85));
+  animation: fireworkSparkAnim var(--dur, 1200ms) cubic-bezier(0.12, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes fireworkSparkAnim {
+  0% {
+    transform: translate(0, 0) scale(1.2);
+    opacity: 1;
+  }
+  60% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0.25);
+    opacity: 0;
+  }
+}
+
+@keyframes shahi-gold-fall {
+  0% { opacity: 0; transform: translate3d(0, -8px, 0) rotate(0) scale(.8); }
+  13% { opacity: .95; }
+  75% { opacity: .82; }
+  100% { opacity: 0; transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--turn)) scale(.52); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shahi-date-rain__petal,
+  .shahi-firework-spark,
+  .date-plaques.shimmer-active .date-shield__reel::after {
+    display: none !important;
+    animation: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .date-section .date-lotus {
+    width: clamp(220px, 36vw, 310px);
+  }
+
+  .date-section .date-stage {
+    flex-wrap: nowrap;
+  }
+
+  .date-section .date-elephant {
+    width: 16vw;
+  }
+}
+
+@media (max-width: 640px) {
+  .date-section {
+    padding: 44px 8px 45px;
+  }
+  .date-section .date-lotus { width: min(56vw, 245px); }
+
+  .date-section .date-stage {
+    width: 100%;
+    margin-block: 24px 17px;
+  }
+  .date-section .date-elephant { width: 17vw; top: 39%; }
+
+  .date-section .date-plaques {
+    width: 100%;
+    gap: 6px;
+  }
+
+  .date-section .date-shield,
+  .date-section .date-shield--center {
+    width: 22vw;
+    min-height: clamp(48px, 14vw, 81px);
+    padding: 4px 1px 0;
+  }
+
+  .date-section .date-shield__label {
+    top: -9px;
+    min-width: 54px;
+    padding: 2px 7px;
+    font-size: 8px;
+  }
+
+  .date-section .date-shield__reel {
+    height: 36px;
+  }
+
+  .date-section .reel-value {
+    font-size: clamp(19px, 6vw, 36px);
+    line-height: 36px;
+  }
+  .date-section .date-cta { min-width: 150px; min-height: 38px; padding: 7px 20px; font-size: 15px; }
+
+  .date-save-text {
+    font-size: clamp(22px, 7vw, 28px);
+  }
+}

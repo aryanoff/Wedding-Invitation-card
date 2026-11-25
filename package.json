@@ -1,0 +1,17 @@
+{
+  "name": "shahi-patra-editable",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Editable, self-hosted royal wedding invitation reconstructed from user-supplied reference videos",
+  "scripts": {
+    "start": "node server.mjs",
+    "download-assets": "node scripts/download-assets.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.18.1"
+  }
+}

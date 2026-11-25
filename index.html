@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#45001c" />
+  <meta name="description" content="A royal wedding celebration — you are warmly invited." />
+  <title>Aditi &amp; Rahul • The Wedding Invitation</title>
+  <link rel="preload" href="assets/fonts/Cormorant-Garamond.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="icon" type="image/svg+xml" href="assets/fallback/lotus.svg" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles/silk-scroll-delay-bounce.css" />
+  <link rel="stylesheet" href="styles/entrance-soft-floral-override.css" />
+  <link rel="stylesheet" href="styles/date-gold-rain.css" />
+  <script src="config.js" defer></script>
+  <script src="main.js" defer></script>
+  <script src="scripts/silk-scroll-delay-bounce.js" defer></script>
+  <script src="scripts/date-gold-rain.js" defer></script>
+</head>
+<body class="is-locked">
+  <div class="paper-grain" aria-hidden="true"></div>
+
+  <!-- FLOATING MUSIC TOGGLE -->
+  <button id="musicToggle" class="music-toggle" type="button" aria-label="Turn background music on" title="Background music">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
+      <path d="m11 5-5 4H3v6h3l5 4V5Z"/>
+      <path class="sound-wave" d="M15 9a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/>
+      <path class="sound-slash" d="m16 9 5 6m0-6-5 6"/>
+    </svg>
+  </button>
+  <audio id="weddingAudio" preload="none" loop></audio>
+
+  <!-- SCENE 1 & 2: ROYAL ENTRY GATE -->
+  <section id="entry" class="entry" aria-label="Royal wedding invitation entrance">
+    <!-- LEFT BROCADE DOOR -->
+    <div class="entry-door entry-door--left">
+      <!-- OUTER DECORATIVE SIDE STRIP WITH REPEATING GOLD MOTIF -->
+      <div class="door-outer-strip door-outer-strip--left" aria-hidden="true"></div>
+      <!-- MAIN MAROON FIELD -->
+      <div class="door-main-field door-main-field--left">
+        <div class="door-panel-line" aria-hidden="true"></div>
+        <img class="door-flower door-flower--left art" data-art="floral1.png" data-fallback="assets/fallback/flower.svg" src="assets/media/floral1.png" alt="" />
+        <img class="door-elephant door-elephant--left art" data-art="elephant.png" data-fallback="assets/fallback/elephant.svg" src="assets/media/elephant.png" alt="" />
+      </div>
+    </div>
+
+    <!-- CENTER PARCHMENT INVITATION LETTER -->
+    <div class="entry-letter">
+      <div class="entry-letter__ribbon entry-letter__ribbon--left" aria-hidden="true"></div>
+      <div class="entry-letter__contents">
+        <img src="assets/media/ganesha_reference.png" class="ganesha" alt="Shri Ganesha emblem" width="56" height="74" />
+        <div id="devanagariHeading" class="devanagari">श्री गणेशाय नमः</div>
+        <p id="introNote" class="intro-note">
+          We cordially invite you to<br>
+          grace the auspicious<br>
+          occasion of the marriage<br>
+          of…
+        </p>
+        <button id="openInvitation" class="gate-badge-btn" type="button" aria-label="Open the royal invitation">
+          <svg class="gate-badge-svg" viewBox="0 0 153 36" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="maroonPlqGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#6a0a2e" />
+                <stop offset="50%" stop-color="#520220" />
+                <stop offset="100%" stop-color="#3e0017" />
+              </linearGradient>
+            </defs>
+            <!-- Traditional Indian bracket cartouche plaque -->
+            <path d="M 15,1.5 L 138,1.5 C 144,1.5 148,6 148,10 C 149,13 151.5,16 152.5,18 C 151.5,20 149,23 148,26 C 148,30 144,34.5 138,34.5 L 15,34.5 C 9,34.5 5,30 5,26 C 4,23 1.5,20 0.5,18 C 1.5,16 4,13 5,10 C 5,6 9,1.5 15,1.5 Z" 
+                  fill="url(#maroonPlqGrad)" stroke="#c89f5c" stroke-width="1.2" />
+            <!-- Delicate inner gold stroke -->
+            <path d="M 16,3.5 L 137,3.5 C 142,3.5 145.5,7 145.5,11 C 146.5,13.5 148.5,16.5 149.5,18 C 148.5,19.5 146.5,22.5 145.5,25 C 145.5,29 142,32.5 137,32.5 L 16,32.5 C 11,32.5 7.5,29 7.5,25 C 6.5,22.5 4.5,19.5 3.5,18 C 4.5,16.5 6.5,13.5 7.5,11 C 7.5,7 11,3.5 16,3.5 Z" 
+                  fill="none" stroke="#f6d296" stroke-width="0.8" opacity="0.6" />
+          </svg>
+          <span class="gate-badge-text">Tap to open</span>
+        </button>
+      </div>
+      <div class="entry-letter__ribbon entry-letter__ribbon--right" aria-hidden="true"></div>
+    </div>
+
+    <!-- RIGHT BROCADE DOOR -->
+    <div class="entry-door entry-door--right">
+      <!-- MAIN MAROON FIELD -->
+      <div class="door-main-field door-main-field--right">
+        <div class="door-panel-line" aria-hidden="true"></div>
+        <img class="door-flower door-flower--right art" data-art="floral1.png" data-fallback="assets/fallback/flower.svg" src="assets/media/floral1.png" alt="" />
+        <img class="door-elephant door-elephant--right art" data-art="elephant.png" data-fallback="assets/fallback/elephant.svg" src="assets/media/elephant.png" alt="" />
+      </div>
+      <!-- OUTER DECORATIVE SIDE STRIP WITH REPEATING GOLD MOTIF -->
+      <div class="door-outer-strip door-outer-strip--right" aria-hidden="true"></div>
+    </div>
+
+  </section>
+
+  <!-- MAIN SCROLLABLE CONTENT -->
+  <main id="mainContent" class="main-content" tabindex="-1">
+
+    <!-- SCENE 3: ROYAL PALACE GARDEN / HERO -->
+    <section class="hero" id="home" aria-labelledby="heroTitle">
+      <div class="hero-backdrop" role="img" aria-label="Royal palace garden at dusk with illuminated mandap"></div>
+      <div class="hero-skyshine" aria-hidden="true"></div>
+      <div class="hero-content">
+        <div class="hero-topline" aria-hidden="true">✧ &nbsp; The wedding of &nbsp; ✧</div>
+        <h1 id="heroTitle" class="hero-title">
+          <span id="heroBride" class="hero-name hero-name--bride">Aditi</span>
+          <span class="hero-amp">&amp;</span>
+          <span id="heroGroom" class="hero-name hero-name--groom">Rahul</span>
+        </h1>
+      </div>
+      <a href="#family" class="hero-bottom" aria-label="Scroll down to family details">
+        <span>Scroll down</span>
+        <span class="scroll-chevron" aria-hidden="true"></span>
+      </a>
+    </section>
+
+    <!-- SCENE 4, 5, 6: TWO REALISTIC SILK FAMILY SCROLLS -->
+    <section class="family-section parchment-section" id="family" aria-label="The Couple's Families">
+      <!-- BRIDE FAMILY SCROLL -->
+      <div class="silk-scroll reveal" id="scrollBride">
+        <div class="scroll-hardware scroll-hardware--top" aria-hidden="true">
+          <img class="finial-knob finial-knob--left" src="assets/media/knob-left 1.svg" alt="" />
+          <div class="roller-cylinder"></div>
+          <img class="finial-knob finial-knob--right" src="assets/media/knob 3.svg" alt="" />
+        </div>
+        <div class="silk-scroll__fabric">
+          <div class="silk-scroll__inner">
+            <p class="tiny-overline">With the blessings of our elders</p>
+            <h2 id="familyFirstName" class="scroll-name">Chi. Aditi Sharma</h2>
+            <p id="familyFirstRel" class="rel-label">Daughter of</p>
+            <p id="familyFirstParents" class="family-names"></p>
+            <p id="familyFirstGrandLabel" class="rel-label">Grandson of</p>
+            <p id="familyFirstGrand" class="family-names"></p>
+            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" />
+          </div>
+        </div>
+        <div class="scroll-hardware scroll-hardware--bottom" aria-hidden="true">
+          <img class="finial-knob finial-knob--left" src="assets/media/knob-left 1.svg" alt="" />
+          <div class="roller-cylinder"></div>
+          <img class="finial-knob finial-knob--right" src="assets/media/knob 3.svg" alt="" />
+        </div>
+      </div>
+
+      <!-- TALL BOTANICAL FLORAL BLOSSOM DIVIDER (Observed in Original Reference Video at t=27s) -->
+      <div class="interstitial-motif reveal" aria-hidden="true">
+        <img class="interstitial-art art" data-art="floral2.webp" data-fallback="assets/fallback/lotus.svg" src="assets/media/floral2.webp" alt="" />
+      </div>
+
+      <!-- GROOM FAMILY SCROLL -->
+      <div class="silk-scroll reveal" id="scrollGroom">
+        <div class="scroll-hardware scroll-hardware--top" aria-hidden="true">
+          <img class="finial-knob finial-knob--left" src="assets/media/knob-left 1.svg" alt="" />
+          <div class="roller-cylinder"></div>
+          <img class="finial-knob finial-knob--right" src="assets/media/knob 3.svg" alt="" />
+        </div>
+        <div class="silk-scroll__fabric">
+          <div class="silk-scroll__inner">
+            <p class="tiny-overline">Two families, one beautiful bond</p>
+            <h2 id="familySecondName" class="scroll-name">Kum. Rahul Verma</h2>
+            <p id="familySecondRel" class="rel-label">Son of</p>
+            <p id="familySecondParents" class="family-names"></p>
+            <p id="familySecondGrandLabel" class="rel-label">Granddaughter of</p>
+            <p id="familySecondGrand" class="family-names"></p>
+            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" />
+          </div>
+        </div>
+        <div class="scroll-hardware scroll-hardware--bottom" aria-hidden="true">
+          <img class="finial-knob finial-knob--left" src="assets/media/knob-left 1.svg" alt="" />
+          <div class="roller-cylinder"></div>
+          <img class="finial-knob finial-knob--right" src="assets/media/knob 3.svg" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <!-- SCENE 7 & 8: SAVE THE DATE (SLOT REEL REVEAL) -->
+    <section class="date-section parchment-section" id="date" aria-label="Wedding Date Reveal">
+      <div class="date-header reveal">
+        <img class="date-lotus art" data-art="lotus_bunch.png" data-fallback="assets/fallback/lotus.svg" src="assets/media/lotus_bunch.png" alt="Decorative royal lotus bouquet" />
+      </div>
+
+      <div class="date-stage reveal" id="dateStage">
+        <img class="date-elephant date-elephant--left art" data-art="elephant.png" data-fallback="assets/fallback/elephant.svg" src="assets/media/elephant.png" alt="" />
+        <div class="date-plaques">
+          <!-- DATE SHIELD -->
+          <div class="date-shield" id="shieldDay">
+            <span class="date-shield__label">DATE</span>
+            <div class="date-shield__reel">
+              <strong id="dateDay" class="reel-value"></strong>
+            </div>
+          </div>
+          <!-- MONTH SHIELD -->
+          <div class="date-shield date-shield--center" id="shieldMonth">
+            <span class="date-shield__label">MONTH</span>
+            <div class="date-shield__reel">
+              <strong id="dateMonth" class="reel-value"></strong>
+            </div>
+          </div>
+          <!-- YEAR SHIELD -->
+          <div class="date-shield" id="shieldYear">
+            <span class="date-shield__label">YEAR</span>
+            <div class="date-shield__reel">
+              <strong id="dateYear" class="reel-value"></strong>
+            </div>
+          </div>
+        </div>
+        <img class="date-elephant date-elephant--right art" data-art="elephant.png" data-fallback="assets/fallback/elephant.svg" src="assets/media/elephant.png" alt="" />
+      </div>
+
+      <button class="royal-btn royal-btn--solid date-cta reveal" id="dateRevealBtn" type="button">
+        <span>Reveal the Date</span>
+      </button>
+      <p id="dateSaveText" class="date-save-text" role="status" aria-live="polite" tabindex="-1" hidden>Save the Date</p>
+      <p id="dateBlessing" class="date-blessing" aria-live="polite" hidden></p>
+    </section>
+
+    <!-- SCENE 9: THE ROYAL PAVILION / FOUNTAIN GARDEN INTERLUDE -->
+    <section class="pavilion-section parchment-section" id="pavilion" aria-label="The royal garden pavilion">
+      <div class="pavilion-border-top" aria-hidden="true">
+        <img class="pavilion-divider art" data-art="section_divider.svg" data-fallback="assets/fallback/divider.svg" src="assets/media/section_divider.svg" alt="" />
+      </div>
+      <div class="pavilion-backdrop" role="img" aria-label="A symmetrical royal domed marble pavilion, cypress trees and fountains in an ornate palace garden"></div>
+      <span class="pavilion-glow" aria-hidden="true"></span>
+      <div class="pavilion-border-bottom" aria-hidden="true">
+        <img class="pavilion-divider art" data-art="section_divider.svg" data-fallback="assets/fallback/divider.svg" src="assets/media/section_divider.svg" alt="" />
+      </div>
+    </section>
+
+    <!-- SCENE 10 & 11: OUR STORY 3D HANGING GALLERY (RAIL-SUSPENDED FRAMES) -->
+    <section class="royale-gallery gallery-section parchment-section" id="memories" aria-label="Our Story Photographs and Moments">
+      <div class="gallery-lead-motif" aria-hidden="true">
+        <img class="royale-gallery__divider gallery-divider art" data-art="divider3.png" data-fallback="assets/fallback/divider.svg" src="assets/media/divider3.png" alt="" />
+      </div>
+      <div class="royale-gallery__scroll" id="ryGalleryScroll">
+        <div class="royale-gallery__rail" aria-hidden="true"></div>
+        <div class="royale-gallery__track" id="galleryTrack" aria-label="Photographs and quotes from our love story. Use the arrow keys to browse." tabindex="0"></div>
+      </div>
+      <div class="royale-gallery__hint" id="ryGalleryHint" aria-hidden="true">
+        <span class="hint-hand" aria-hidden="true">‹‹</span>
+        <span class="hint-text">Swipe</span>
+        <span aria-hidden="true">››</span>
+      </div>
+    </section>
+
+    <!-- SCENE 12, 13, 14: CEREMONIES -->
+    <section class="ceremonies-section" id="ceremonies" aria-labelledby="ceremoniesTitle">
+      <div class="maroon-pattern" aria-hidden="true"></div>
+      
+      <!-- LARGE UPPER CORNER FLORAL EMBROIDERIES WITH DANGLING TASSELS -->
+      <img class="ceremony-corner ceremony-corner--left art" data-art="ceremony-corner-embroidered-v2.webp" data-fallback="assets/fallback/flower.svg" src="assets/media/ceremony-corner-embroidered-v2.webp" alt="" aria-hidden="true" />
+      <img class="ceremony-corner ceremony-corner--right art" data-art="ceremony-corner-embroidered-v2.webp" data-fallback="assets/fallback/flower.svg" src="assets/media/ceremony-corner-embroidered-v2.webp" alt="" aria-hidden="true" />
+
+      <div class="ceremonies-heading-wrap reveal">
+        <h2 id="ceremoniesTitle" class="ceremonies-title">Ceremonies</h2>
+      </div>
+
+      <!-- 3+2 SYMMETRICAL CEREMONY LAYOUT -->
+      <div class="ceremonies-container">
+        <!-- ROW 1: 3 CARDS (Mehendi, Haldi, Sangeet) -->
+        <div class="ceremony-row ceremony-row--three" id="ceremonyRowTop"></div>
+
+        <!-- GRAND CENTRAL LOTUS DIVIDER BETWEEN ROWS -->
+        <div class="ceremony-central-divider reveal" aria-hidden="true">
+          <img class="art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" />
+        </div>
+
+        <!-- ROW 2: 2 CENTERED CARDS (Vivaah, Reception) -->
+        <div class="ceremony-row ceremony-row--two" id="ceremonyRowBottom"></div>
+      </div>
+
+      <!-- TORN PARCHMENT EDGE TRANSITION -->
+      <div class="torn-edge" aria-hidden="true"></div>
+    </section>
+
+    <!-- SCENE 15 & 16: COMPLIMENTS & NOTES SILK SCROLLS -->
+    <section class="notes-section parchment-section" id="blessings" aria-label="Compliments and Notes">
+      <!-- SCROLL 1: COMPLIMENTS -->
+      <div class="silk-scroll silk-scroll--compact reveal" id="scrollCompliments">
+        <div class="scroll-hardware scroll-hardware--top" aria-hidden="true">
+          <img class="finial-knob finial-knob--left" src="assets/media/knob-left 1.svg" alt="" />
+          <div class="roller-cylinder"></div>
+          <img class="finial-knob finial-knob--right" src="assets/media/knob 3.svg" alt="" />
+        </div>
+        <div class="silk-scroll__fabric">
+          <div class="silk-scroll__inner">
+            <h2 id="complimentsLead" class="scroll-name scroll-name--small">With Best Compliments From:</h2>
+            <div id="complimentsLines" class="compliments-lines"></div>
+            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" />
+          </div>
+        </div>
+        <div class="scroll-hardware scroll-hardware--bottom" aria-hidden="true">
+          <img class="finial-knob finial-knob--left" src="assets/media/knob-left 1.svg" alt="" />
+          <div class="roller-cylinder"></div>
+          <img class="finial-knob finial-knob--right" src="assets/media/knob 3.svg" alt="" />
+        </div>
+      </div>
+
+      <!-- INTERSTITIAL LOTUS FLOURISH -->
+      <div class="interstitial-motif reveal" aria-hidden="true">
+        <img class="interstitial-art art" data-art="divider3.png" data-fallback="assets/fallback/divider.svg" src="assets/media/divider3.png" alt="" />
+      </div>
+
+      <!-- SCROLL 2: THINGS TO NOTE -->
+      <div class="silk-scroll silk-scroll--note reveal" id="scrollNotes">
+        <div class="scroll-hardware scroll-hardware--top" aria-hidden="true">
+          <img class="finial-knob finial-knob--left" src="assets/media/knob-left 1.svg" alt="" />
+          <div class="roller-cylinder"></div>
+          <img class="finial-knob finial-knob--right" src="assets/media/knob 3.svg" alt="" />
+        </div>
+        <div class="silk-scroll__fabric">
+          <div class="silk-scroll__inner">
+            <h2 id="noteLead" class="scroll-name scroll-name--small">Things to Note</h2>
+            <p id="noteText" class="scroll-note-text"></p>
+            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" />
+          </div>
+        </div>
+        <div class="scroll-hardware scroll-hardware--bottom" aria-hidden="true">
+          <img class="finial-knob finial-knob--left" src="assets/media/knob-left 1.svg" alt="" />
+          <div class="roller-cylinder"></div>
+          <img class="finial-knob finial-knob--right" src="assets/media/knob 3.svg" alt="" />
+        </div>
+      </div>
+
+      <!-- SOCIAL / CALENDAR CONTROLS -->
+      <div class="royale-social social-row reveal" id="rySocialRow">
+        <button id="ryIgBtn" class="social-action" type="button" aria-label="Open Instagram">
+          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></svg><span>Instagram</span>
+        </button>
+        <button id="ryLocBtn" class="social-action" type="button" aria-label="View ceremony locations">
+          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>Locations</span>
+        </button>
+        <button id="ryCalBtn" class="social-action" type="button" aria-label="Add ceremonies to calendar">
+          <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4m8-4v4m-8 7h1m6 0h1m-8 3h1m6 0h1"/></svg><span>Calendar</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- SCENE 17 & 18: SUNSET PALACE COURTYARD WITH RECTANGULAR GOLD EASEL -->
+    <section class="royale-outro finale" id="farewell" aria-label="Royal Farewell">
+      <div class="torn-edge torn-edge--top" aria-hidden="true"></div>
+      <picture class="finale-picture">
+        <source media="(min-width: 700px)" srcset="assets/media/sunset-courtyard-wide.webp" width="1672" height="941" />
+        <img class="finale-backdrop" src="assets/media/garden_close_tall.webp" alt="Palace courtyard at sunset with flowering bougainvillea and colonnades" loading="lazy" />
+      </picture>
+      
+      <!-- GOLD ORNAMENTAL EASEL FRAME (NO EXTRA RSVP BUTTON) -->
+      <div class="easel-container reveal">
+        <!-- ORNATE TOP CROWN FINIAL -->
+        <div class="easel-crown" aria-hidden="true">
+          <img src="assets/media/lotus_bunch.png" alt="" />
+        </div>
+
+        <!-- TWO WOODEN/GOLD DIAGONAL EASEL LEGS -->
+        <div class="easel-legs" aria-hidden="true">
+          <div class="easel-leg easel-leg--left"></div>
+          <div class="easel-leg easel-leg--right"></div>
+          <div class="easel-mast"></div>
+          <div class="easel-crossbar"></div>
+        </div>
+
+        <!-- RECTANGULAR GILDED INVITATION BOARD -->
+        <div class="easel-board">
+          <div class="easel-board__outer-gold"></div>
+          <div class="easel-board__inner">
+            <h2 id="farewellText" class="easel-quote">Your Presence Means the World to Us</h2>
+          </div>
+        </div>
+      </div>
+      <div class="torn-edge torn-edge--bottom" aria-hidden="true"></div>
+    </section>
+
+    <!-- SCENE 19, 20, 21: INLINE RSVP (AUTHENTIC WIDE FORMAT WITH MEDALLIONS & 2-COLUMN SCHEDULE) -->
+    <section id="rsvp" class="rsvp-section parchment-section" aria-labelledby="rsvpTitle">
+      <form id="rsvpForm" method="POST" action="https://api.web3forms.com/submit" class="rsvp-card" aria-describedby="rsvpDescription">
+        <input type="hidden" name="access_key" id="rsvpAccessKey" value="" />
+        <input type="hidden" name="guest_count" id="rsvpGuestCount" value="2" />
+        <input type="hidden" name="subject" id="rsvpSubject" value="Wedding RSVP" />
+        <input type="checkbox" name="botcheck" class="rsvp-honeypot" style="display: none;" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+        <div class="rsvp-title-wrap">
+          <h2 id="rsvpTitle">Your Presence Matters</h2>
+          <p id="rsvpDescription">Let us know so we can make the arrangements just right.</p>
+        </div>
+
+        <div class="rsvp-fields">
+          <div class="field-group">
+            <label class="field-label" for="rsvpName">Your name</label>
+            <div class="field-input-wrap">
+              <span class="field-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              </span>
+              <input id="rsvpName" name="name" required placeholder="Enter your name" autocomplete="name" maxlength="100" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="rsvpPhone">Mobile number</label>
+            <div class="field-input-wrap">
+              <span class="field-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+              </span>
+              <input id="rsvpPhone" name="phone" required placeholder="10-digit mobile number" inputmode="tel" autocomplete="tel" minlength="8" maxlength="16" />
+            </div>
+          </div>
+        </div>
+
+        <!-- GUEST COUNTER PANEL -->
+        <div class="guest-counter">
+          <span class="field-label">How many of you are coming?</span>
+          <div class="stepper">
+            <button id="guestMinus" type="button" aria-label="Decrease guest count">−</button>
+            <strong id="guestCount">2</strong>
+            <button id="guestPlus" type="button" aria-label="Increase guest count">+</button>
+          </div>
+          <small>Counts for every event you say Yes or Maybe to, below. Up to 10 people.</small>
+        </div>
+
+        <!-- EVENT ATTENDANCE SCHEDULE -->
+        <fieldset class="rsvp-events">
+          <legend>Event Schedule</legend>
+          <p class="rsvp-events-sub">Let us know which events you'll be joining.</p>
+          <div id="rsvpEventRows" class="rsvp-event-grid"></div>
+        </fieldset>
+
+        <!-- OPTIONAL WISHES -->
+        <label class="field-label rsvp-wishes">
+          <span>Leave the couple a wish (optional)</span>
+          <textarea name="message" rows="3" maxlength="500" placeholder="Leave your warm wishes here…"></textarea>
+        </label>
+
+        <!-- SUBMIT BUTTON -->
+        <button class="royal-btn royal-btn--solid submit-rsvp" id="submitRsvpBtn" type="submit">
+          <span>♥ &nbsp; Send RSVP</span>
+        </button>
+
+        <p id="rsvpDisclaimer" class="rsvp-disclaimer">Your response and mobile number are sent to the wedding host through Web3Forms for wedding arrangements.</p>
+        <div id="rsvpSuccess" class="rsvp-success" role="status" aria-live="polite" hidden></div>
+      </form>
+
+      <p class="rsvp-bottom-note">Thank you! Your response means a lot to us.</p>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer-credits">
+      <span id="footerCouple">Aditi &amp; Rahul</span>
+      <span class="footer-dot">•</span>
+      <span>Made with love ♡</span>
+      <button id="replayInvitation" type="button" class="back-to-top-btn">↑ Back to beginning</button>
+    </footer>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

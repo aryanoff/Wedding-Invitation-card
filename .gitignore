@@ -1,0 +1,15 @@
+node_modules/
+data/
+dist/
+qa/
+tmp/
+.env
+.env.*
+!.env.example
+.vercel
+.DS_Store
+Thumbs.db
+*.zip
+*.mp4
+*.wav
+*.log

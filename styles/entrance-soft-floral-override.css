@@ -1,0 +1,194 @@
+/* SHAHI PATRA — Soft Floral Entrance Paper & Typography Fidelity
+   Authoritative Reference: Original Screenshots (November 2026).
+   Background: Warm peach-ivory (#fde5c9) with soft vignette and delicate repeating Mughal Buti watermark.
+   Typography: Rozha One bold Devanagari (#8c592f), upright bold Cormorant Garamond serif (#8c592f).
+   Artwork: Full seated Ganesha line-art, balanced margins, ceremonial burgundy cartouche button (#f7d49a title).
+*/
+:root {
+  --entry-peach-paper: #fde5c9;
+  --entry-antique-brown: #8c592f;
+  --entry-gold-ink: #f7d49a;
+}
+
+/* SINGLE CANONICAL WATERMARK & PAPER BACKGROUND (no stacking of old SVG wallpapers) */
+#entry .entry-letter {
+  background-color: var(--entry-peach-paper) !important;
+  background-image:
+    url('../assets/entrance-watermark-soft-buti.svg'),
+    linear-gradient(90deg,
+      rgba(125, 66, 34, .045) 0%,
+      rgba(255,255,255,0) 10%,
+      rgba(255,255,255,.04) 50%,
+      rgba(255,255,255,0) 90%,
+      rgba(125,66,34,.045) 100%) !important;
+  background-repeat: repeat, no-repeat !important;
+  background-size: 100px 180px, 100% 100% !important;
+  background-position: center top, center !important;
+  box-shadow:
+    inset 9px 0 13px -10px rgba(77, 34, 15, .20),
+    inset -9px 0 13px -10px rgba(77, 34, 15, .20) !important;
+}
+
+#entry .entry-letter__contents {
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* Devanagari Title: Rozha One in antique brown #8c592f */
+#entry .devanagari {
+  font-family: 'Rozha One', 'Yatra One', serif !important;
+  font-weight: 700 !important;
+  color: var(--entry-antique-brown) !important;
+  font-style: normal !important;
+  text-shadow: none !important;
+  letter-spacing: 0 !important;
+  font-size: clamp(21px, 1.8vw, 24px) !important;
+  line-height: 1.15 !important;
+  margin: 0 0 16px !important;
+}
+
+/* English Stanza: Upright bold traditional serif, warm antique brown, natural 4-line flow */
+#entry .intro-note {
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+  color: var(--entry-antique-brown) !important;
+  font-size: clamp(16px, 1.28vw, 18px) !important;
+  line-height: 1.30 !important;
+  letter-spacing: 0.01em !important;
+  text-shadow: none !important;
+  text-align: center !important;
+  text-wrap: balance;
+  max-width: 290px !important;
+  margin: 0 auto 45px !important;
+}
+
+/* Ganesha Artwork: Full seated line-art illustration, uncropped, centered */
+#entry .ganesha {
+  display: block;
+  width: 56px !important;
+  height: 74px !important;
+  object-fit: contain !important;
+  object-position: center;
+  margin: 0 auto 14px !important;
+  filter: none !important;
+}
+
+/* Ceremonial Cartouche Badge Button: Burgundy plaque with gold title */
+#entry #openInvitation {
+  color: var(--entry-gold-ink) !important;
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+  filter: drop-shadow(0 3px 5px rgba(55, 4, 22, .20)) !important;
+  cursor: pointer;
+  animation: cartoucheFloatDesktop 3.2s ease-in-out infinite !important;
+  transition: filter 0.25s ease !important;
+}
+
+#entry #openInvitation:hover,
+#entry #openInvitation:focus-visible {
+  animation-play-state: paused !important;
+  filter: drop-shadow(0 5px 12px rgba(60, 4, 24, .38)) brightness(1.08) !important;
+  outline: 2px solid #b18343;
+  outline-offset: 4px;
+}
+
+#entry #openInvitation span {
+  color: inherit !important;
+  font: inherit !important;
+}
+
+@keyframes cartoucheFloatDesktop {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3.5px);
+  }
+}
+
+@keyframes cartoucheFloatMobile {
+  0%, 100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, -3.5px);
+  }
+}
+
+/* On a phone the letter is a horizontal folio over the same velvet panels. */
+@media (max-width: 640px) {
+  #entry .entry-door { border: 0; }
+  #entry .door-main-field { width: 100%; inset-inline: 0; }
+  #entry .door-outer-strip { display: none; }
+  #entry .door-flower {
+    top: 5.4%;
+    width: clamp(45px, 15vw, 72px);
+    height: 21%;
+    object-fit: contain;
+    opacity: 1;
+  }
+  #entry .door-flower--left,
+  #entry .door-elephant--left { left: 50%; }
+  #entry .door-flower--right,
+  #entry .door-elephant--right { right: 50%; }
+  #entry .door-elephant { width: clamp(70px, 21vw, 110px); height: auto; bottom: 4.7%; }
+  #entry .entry-letter {
+    inset-block: 28% auto;
+    width: 100%;
+    max-width: none;
+    height: 48%;
+    min-height: 0;
+    padding: 14px 16px;
+    border-block: 5px double #96543f;
+    overflow: hidden;
+  }
+  #entry .entry-letter__ribbon { display: none; }
+  #entry .entry-letter__contents {
+    width: 100% !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    position: relative;
+  }
+  #entry .ganesha {
+    width: clamp(38px, 12vw, 56px) !important;
+    height: clamp(46px, 8.6vh, 72px) !important;
+    margin: 0 auto 9px !important;
+  }
+  #entry .devanagari {
+    margin: 0 auto clamp(9px, 2vh, 16px) !important;
+    font-size: clamp(16px, 4.5vw, 21px) !important;
+    line-height: 1.36 !important;
+  }
+  #entry .intro-note {
+    width: 240px !important;
+    max-width: 84% !important;
+    margin: 0 auto clamp(9px, 1.9vh, 17px) !important;
+    font-size: clamp(15px, 4vw, 18px) !important;
+    line-height: 1.22 !important;
+  }
+  #entry #openInvitation {
+    position: relative !important;
+    width: 145px !important;
+    height: 42px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+@media (max-width: 640px) and (max-height: 580px) {
+  #entry .entry-letter { inset-block-start: 22%; height: 57%; }
+  #entry .devanagari { font-size: clamp(18px, 5.5vw, 22px) !important; }
+  #entry .intro-note { font-size: 15px !important; }
+  #entry .ganesha { height: 36px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #entry #openInvitation { animation: none !important; }
+}
