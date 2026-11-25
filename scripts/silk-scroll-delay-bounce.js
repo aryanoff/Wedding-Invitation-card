@@ -1,23 +1,17 @@
 /**
  * SHAHI PATRA • weighted silk-scroll unroll with delayed start and soft end bounce.
- * For the existing .silk-scroll > [top hardware] + .silk-scroll__fabric + [bottom hardware] markup.
- *
- * IMPORTANT: disable the previous silk-scroll-motion.js and any main.js
- * setUpScrollUnroll() / duplicate IntersectionObserver before installing.
- * Put this file after main.js, deferred, and the companion CSS after styles.css.
- *
- * The top roller is unchanged. The bottom roller moves in normal document flow
- * because the fabric height changes. The inner typography is NEVER transformed.
+ * Top roller stays fixed; bottom roller follows document flow as fabric height expands.
+ * Typography is never transformed. Pauses clock cleanly if backgrounded mid-unroll.
  */
 (() => {
   'use strict';
 
   const CONFIG = {
-    pauseBeforeOpenMs: 450,  // 450ms traditional ceremonial delay
+    pauseBeforeOpenMs: 450,
     durationMs: 1920,
-    bouncePortion: 0.22,     // last 22% of opening motion
+    bouncePortion: 0.22,
     overshootMultiplier: 0.045,
-    overshootMinPx: 18,      // refined spring amplitude: visible overshoot ~8.5px, recoil ~1.7px
+    overshootMinPx: 18,
     overshootMaxPx: 21,
   };
 
@@ -37,7 +31,6 @@
   }
 
   function measureInner(inner) {
-    // Read natural inner height, never the currently clipped fabric height.
     return Math.max(1, Math.ceil(Math.max(inner.scrollHeight, inner.getBoundingClientRect().height)));
   }
 
@@ -82,19 +75,27 @@
       CONFIG.overshootMaxPx
     );
     const basePortion = 1 - CONFIG.bouncePortion;
-    let startTime = null;
+    let lastTimestamp = null;
+    let elapsedMs = 0;
 
     const step = now => {
       if (state.phase !== 'opening') return;
-      if (startTime === null) startTime = now;
-      const t = clamp((now - startTime) / duration, 0, 1);
+      if (document.hidden) {
+        lastTimestamp = null;
+        state.frame = requestAnimationFrame(step);
+        return;
+      }
+      if (lastTimestamp !== null) {
+        elapsedMs += Math.min(64, now - lastTimestamp);
+      }
+      lastTimestamp = now;
+
+      const t = clamp(elapsedMs / duration, 0, 1);
       let height;
       if (t <= basePortion) {
         const mainProgress = smooth(t / basePortion);
         height = state.target * mainProgress;
       } else {
-        // First a small downward overshoot, then a much smaller upward recoil.
-        // Decay reaches precisely 0 displacement at the settled endpoint.
         const bounceProgress = (t - basePortion) / CONFIG.bouncePortion;
         const displacement = springAmplitude
           * Math.exp(-3.2 * bounceProgress)
@@ -130,7 +131,6 @@
     state.timer = window.setTimeout(() => animateScroll(scroll, state), pause);
   }
 
-  // Initialize before observing so the old "is-unrolled" state cannot flash.
   document.documentElement.classList.add('shahi-scroll-bounce-ready');
   for (const scroll of scrolls) {
     const fabric = scroll.querySelector('.silk-scroll__fabric');
@@ -143,23 +143,34 @@
   }
 
   let visibilityFrame = 0;
+  let listenersCleaned = false;
   function checkVisible() {
     visibilityFrame = 0;
     if (document.body.classList.contains('is-locked')) return;
     const openingSections = new Set();
     const trigger = innerHeight * (matchMedia('(max-width: 640px)').matches ? .68 : .80);
+    let incompleteCount = 0;
     for (const scroll of scrolls) {
       const state = states.get(scroll);
       if (!state || state.phase === 'complete') continue;
+      incompleteCount += 1;
       const box = scroll.getBoundingClientRect();
       if (box.bottom < 0 || box.top > trigger ||
           openingSections.has(scroll.parentElement)) continue;
       openingSections.add(scroll.parentElement);
       if (state.phase === 'closed') open(scroll);
     }
+    if (incompleteCount === 0 && !listenersCleaned) {
+      listenersCleaned = true;
+      window.removeEventListener('pageshow', scheduleVisibilityCheck);
+      window.removeEventListener('scroll', scheduleVisibilityCheck);
+      window.removeEventListener('resize', scheduleVisibilityCheck);
+      document.removeEventListener('shahi:gate-opened', scheduleVisibilityCheck);
+      document.removeEventListener('shahi:scroll-unrolled', scheduleVisibilityCheck);
+    }
   }
   function scheduleVisibilityCheck() {
-    if (!visibilityFrame) visibilityFrame = requestAnimationFrame(checkVisible);
+    if (!visibilityFrame && !listenersCleaned) visibilityFrame = requestAnimationFrame(checkVisible);
   }
   window.addEventListener('pageshow', scheduleVisibilityCheck);
   window.addEventListener('scroll', scheduleVisibilityCheck, { passive: true });

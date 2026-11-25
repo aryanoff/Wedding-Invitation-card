@@ -97,6 +97,14 @@
   outline-offset: 4px;
 }
 
+#entry #openInvitation:active,
+.entry[data-state="opening"] #openInvitation {
+  animation: none !important;
+  transform: translateY(2px) scale(0.96) !important;
+  filter: drop-shadow(0 1px 4px rgba(45, 0, 18, .34)) brightness(0.96) !important;
+  transition: transform 0.1s ease, filter 0.1s ease !important;
+}
+
 #entry #openInvitation span {
   color: inherit !important;
   font: inherit !important;

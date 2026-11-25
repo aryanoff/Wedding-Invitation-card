@@ -15,7 +15,8 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
-  const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const prefersReduced = reducedMotion.matches;
   const safeText = value => String(value ?? '');
   const setText = (id, text) => {
     const el = document.getElementById(id);
@@ -115,94 +116,294 @@
   }
 
   /* --------------------------------------------------------------------------
-     2. GATE OPENING & PROGRESSIVE HERO REVEAL (MULTI-STAGE DETERMINISTIC SEQUENCE)
+     2. GATE OPENING & PROGRESSIVE HERO REVEAL (UNIFIED DETERMINISTIC CONTROLLER)
      -------------------------------------------------------------------------- */
-  function setUpGate() {
+  function setUpGate(startMusicOnOpen) {
     const entry = $('#entry');
     const openBtn = $('#openInvitation');
     const main = $('#mainContent');
+    if (!entry || !openBtn || !main) return;
+
+    const leftDoor = $('.entry-door--left', entry);
+    const rightDoor = $('.entry-door--right', entry);
     const letter = $('.entry-letter', entry);
-    if (!entry || !openBtn || !main || !letter) return;
+    const seam = $('.entry-seam', entry);
+    const duration = 2850;
+    const nameCue = 2050;
+    entry.style.setProperty('--gate-duration', `${duration}ms`);
+    entry.dataset.state = entry.dataset.state || 'closed';
     main.inert = true;
 
-    // Trace the outer velvet and then the aperture in the opposite direction.
-    // The midpoint bulges inward as the top and bottom of the curtain clear.
-    const aperture = (edge, top, bottom, bow = 0) => {
-      const side = [0, .38, .77, 1, .77, .38, 0];
-      const left = side.map((s, i) => `${edge + s * bow}% ${top + (bottom - top) * i / 6}%`);
-      const right = side.map((s, i) => `${100 - edge - s * bow}% ${top + (bottom - top) * i / 6}%`);
-      return `polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, ${left.join(', ')}, ${right.reverse().join(', ')}, ${left[0]})`;
+    let activeAbort = null;
+    const cubicEase = (t, x1, y1, x2, y2) => {
+      if (t <= 0) return 0;
+      if (t >= 1) return 1;
+      const sample = u => (((3 * (1 - u) * (1 - u) * u) * x1) + (3 * (1 - u) * u * u * x2) + (u * u * u));
+      let lo = 0, hi = 1, u = t;
+      for (let i = 0; i < 8; i++) {
+        u = (lo + hi) * 0.5;
+        if (sample(u) < t) lo = u;
+        else hi = u;
+      }
+      return ((3 * (1 - u) * (1 - u) * u) * y1) + (3 * (1 - u) * u * u * y2) + (u * u * u);
     };
+    const lerp = (a, b, p) => a + (b - a) * p;
+
+    function clearInlineGateStyles() {
+      [letter, leftDoor, rightDoor, seam].forEach(el => {
+        if (!el) return;
+        el.style.removeProperty('transform');
+        el.style.removeProperty('opacity');
+      });
+      delete entry.dataset.gateFallback;
+      delete entry.dataset.gateStage;
+    }
+
+    function applyRafFrame(ratio, portraitLayout) {
+      // Piecewise choreography synchronized to styles.css @keyframes percentages
+      if (letter) {
+        const lp = ratio <= 0.03 ? 0 : Math.min(1, (ratio - 0.03) / 0.205);
+        const eased = cubicEase(lp, 0.34, 0.04, 0.24, 1);
+        if (portraitLayout) {
+          const yPct = eased <= 0.46
+            ? lerp(0, -27, eased / 0.46)
+            : lerp(-27, -174, (eased - 0.46) / 0.54);
+          const rot = eased <= 0.46
+            ? lerp(0, 26, eased / 0.46)
+            : lerp(26, 55, (eased - 0.46) / 0.54);
+          const sc = lerp(1, 0.94, eased);
+          letter.style.transform = `translate3d(-50%, ${yPct.toFixed(2)}%, ${(eased <= 0.46 ? 3 : 0)}px) rotateX(${rot.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+        } else {
+          const x = eased <= 0.46 ? lerp(-50, -31, eased / 0.46) : lerp(-31, 62, (eased - 0.46) / 0.54);
+          const rot = lerp(0, -47, eased);
+          letter.style.transform = `translate3d(${x.toFixed(2)}%, ${(-2 * eased).toFixed(2)}%, ${(eased <= 0.46 ? 3 : 0)}px) rotateY(${rot.toFixed(2)}deg)`;
+        }
+        const op = lp <= 0.46 ? 1 : Math.max(0, 1 - (lp - 0.46) / 0.54);
+        letter.style.opacity = String(op.toFixed(3));
+      }
+
+      const dp = ratio <= 0.26 ? 0 : Math.min(1, (ratio - 0.26) / 0.74);
+      let doorShift = 0;
+      let doorAngle = 0;
+      if (dp > 0) {
+        if (dp <= 0.243) {
+          const s = cubicEase(dp / 0.243, 0.45, 0.04, 0.42, 1);
+          doorShift = lerp(0, 8, s);
+          doorAngle = lerp(0, 12, s);
+        } else if (dp <= 0.703) {
+          const s = cubicEase((dp - 0.243) / 0.46, 0.26, 0.58, 0.18, 1);
+          doorShift = lerp(8, 81, s);
+          doorAngle = lerp(12, 23, s);
+        } else {
+          const s = cubicEase((dp - 0.703) / 0.297, 0.25, 0.46, 0.45, 0.94);
+          doorShift = lerp(81, 111, s);
+          doorAngle = lerp(23, 26, s);
+        }
+      }
+      if (leftDoor) leftDoor.style.transform = `translate3d(${(-doorShift).toFixed(2)}%, 0, 0) rotateY(${(-doorAngle).toFixed(2)}deg)`;
+      if (rightDoor) rightDoor.style.transform = `translate3d(${doorShift.toFixed(2)}%, 0, 0) rotateY(${doorAngle.toFixed(2)}deg)`;
+
+      if (seam) {
+        if (ratio <= 0.24 || ratio >= 0.43) {
+          seam.style.opacity = '0';
+        } else if (ratio <= 0.31) {
+          const sp = (ratio - 0.24) / 0.07;
+          seam.style.opacity = (0.76 * sp).toFixed(3);
+          seam.style.transform = `translate(-50%, -50%) ${portraitLayout ? `scaleY(${lerp(0.12, 1, sp).toFixed(3)})` : `scaleX(${lerp(0.06, 1, sp).toFixed(3)})`}`;
+        } else {
+          const sp = (ratio - 0.31) / 0.12;
+          seam.style.opacity = (0.76 * (1 - sp)).toFixed(3);
+          seam.style.transform = 'translate(-50%, -50%) scale(1)';
+        }
+      }
+    }
+
+    function playGate(portraitLayout) {
+      return new Promise(resolve => {
+        let elapsed = 0;
+        let resumedAt = null;
+        let timer = 0;
+        let verifyFrame = 0;
+        let rafLoop = 0;
+        let pageAway = false;
+        let namesShown = false;
+        let doorFinished = false;
+        let useRafFallback = false;
+        let settled = false;
+
+        const finish = motion => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          if (verifyFrame) cancelAnimationFrame(verifyFrame);
+          if (rafLoop) cancelAnimationFrame(rafLoop);
+          lastListeners(false);
+          clearInlineGateStyles();
+          if (activeAbort === abortRun) activeAbort = null;
+          resolve(motion);
+        };
+
+        const abortRun = () => finish('aborted');
+        activeAbort = abortRun;
+
+        const tickRafFallback = () => {
+          if (settled || !useRafFallback) return;
+          if (!pageAway && !document.hidden) {
+            const now = performance.now();
+            resumedAt ??= now;
+            const fg = elapsed + (now - resumedAt);
+            applyRafFrame(Math.min(1, fg / duration), portraitLayout);
+            if (fg >= duration) {
+              finish('cinematic');
+              return;
+            }
+          }
+          rafLoop = requestAnimationFrame(tickRafFallback);
+        };
+
+        const activateRafFallback = () => {
+          if (settled || useRafFallback || reducedMotion.matches) return;
+          useRafFallback = true;
+          entry.dataset.gateFallback = 'raf';
+          const fg = elapsed + (resumedAt === null ? 0 : performance.now() - resumedAt);
+          applyRafFrame(Math.min(1, fg / duration), portraitLayout);
+          rafLoop = requestAnimationFrame(tickRafFallback);
+        };
+
+        function syncClock() {
+          if (settled) return;
+          clearTimeout(timer);
+          const now = performance.now();
+          if (pageAway || document.hidden) {
+            if (resumedAt !== null) elapsed += now - resumedAt;
+            resumedAt = null;
+            entry.dataset.gatePaused = '';
+            return;
+          }
+
+          delete entry.dataset.gatePaused;
+          resumedAt ??= now;
+          const foregroundMs = elapsed + now - resumedAt;
+          if (foregroundMs >= nameCue && !namesShown) {
+            namesShown = true;
+            entry.dataset.gateStage = 'hero-names';
+            document.body.classList.add('opened');
+          } else if (foregroundMs >= duration * 0.26 && !namesShown) {
+            entry.dataset.gateStage = 'curtains';
+          } else if (foregroundMs >= duration * 0.03 && !entry.dataset.gateStage) {
+            entry.dataset.gateStage = 'letter-fold';
+          }
+          const completionCue = doorFinished || useRafFallback ? duration : duration + 120;
+          if (foregroundMs >= completionCue) {
+            finish('cinematic');
+            return;
+          }
+          const nextCue = namesShown ? completionCue : nameCue;
+          timer = setTimeout(syncClock, Math.max(16, Math.ceil(nextCue - foregroundMs)));
+        }
+
+        function onDoorEnd(event) {
+          if (event.target === rightDoor && event.animationName === 'shahi-gate-door' &&
+              event.elapsedTime * 1000 >= duration - 24) {
+            doorFinished = true;
+            syncClock();
+          }
+        }
+        function onAnimationCancel(event) {
+          if ((event.target === rightDoor || event.target === letter) &&
+              !settled && !pageAway && !document.hidden && !reducedMotion.matches) {
+            activateRafFallback();
+          }
+        }
+        function onPageHide() { pageAway = true; syncClock(); }
+        function onPageShow() { pageAway = false; syncClock(); }
+        function onMotionChange() { if (reducedMotion.matches) finish('reduced'); }
+
+        function lastListeners(attach) {
+          const method = attach ? 'addEventListener' : 'removeEventListener';
+          rightDoor?.[method]('animationend', onDoorEnd);
+          rightDoor?.[method]('animationcancel', onAnimationCancel);
+          letter?.[method]('animationcancel', onAnimationCancel);
+          document[method]('visibilitychange', syncClock);
+          document[method]('freeze', onPageHide);
+          window[method]('pagehide', onPageHide);
+          window[method]('pageshow', onPageShow);
+          if (reducedMotion.addEventListener && reducedMotion.removeEventListener) {
+            reducedMotion[method]('change', onMotionChange);
+          } else if (attach) {
+            reducedMotion.addListener?.(onMotionChange);
+          } else {
+            reducedMotion.removeListener?.(onMotionChange);
+          }
+        }
+
+        lastListeners(true);
+        entry.dataset.gateStage = 'tap';
+        syncClock();
+
+        // Detect disabled/0s CSS keyframes when prefers-reduced-motion is NOT requested.
+        verifyFrame = requestAnimationFrame(() => {
+          verifyFrame = 0;
+          if (settled || useRafFallback || reducedMotion.matches || !rightDoor) return;
+          const doorStyle = getComputedStyle(rightDoor);
+          const animDur = parseFloat(doorStyle.animationDuration) || 0;
+          if (doorStyle.animationName === 'none' || animDur <= 0.05) {
+            activateRafFallback();
+          }
+        });
+      });
+    }
 
     async function openGate() {
       if (entry.dataset.state && entry.dataset.state !== 'closed') return;
+      if (activeAbort) activeAbort();
+      const started = performance.now();
+      const anchor = location.hash.slice(1);
+      const motion = reducedMotion.matches ? 'reduced' : 'cinematic';
+      const portraitLayout = matchMedia('(max-width: 640px)').matches;
+      clearInlineGateStyles();
+      entry.dataset.gateMotion = motion;
+      entry.dataset.gateLayout = portraitLayout ? 'portrait' : 'wide';
       entry.dataset.state = 'opening';
       openBtn.disabled = true;
-      const anchor = location.hash.slice(1);
       window.scrollTo({ top: 0, behavior: 'instant' });
+      startMusicOnOpen?.();
 
-      // Attempt soundtrack playback after explicit user gesture
-      const audio = $('#weddingAudio');
-      const musicBtn = $('#musicToggle');
-      if (audio && audio.src && audio.paused) {
-        audio.play().then(() => {
-          if (musicBtn) {
-            musicBtn.classList.add('playing');
-            musicBtn.setAttribute('aria-label', 'Pause background music');
-          }
-        }).catch(() => {});
-      }
+      const completedMotion = motion === 'cinematic' ? await playGate(portraitLayout) : motion;
+      if (completedMotion === 'aborted') return;
 
-      if (!prefersReduced && typeof entry.animate === 'function') {
-        const narrow = matchMedia('(max-width: 640px)').matches;
-        const curtain = entry.animate([
-          { clipPath: aperture(50, 50, 50), offset: 0 },
-          { clipPath: aperture(50, 50, 50), offset: .28, easing: 'ease-out' },
-          { clipPath: aperture(narrow ? 5 : 15, 49.6, 50.4), offset: .39, easing: 'ease-in-out' },
-          { clipPath: aperture(narrow ? 4 : 14, 39, 61), offset: .49, easing: 'cubic-bezier(.3,.15,.24,1)' },
-          { clipPath: aperture(3, -2, 102, narrow ? 11 : 7), offset: .68, easing: 'ease-out' },
-          { clipPath: aperture(-3, -5, 105), offset: 1 }
-        ], { duration: 1850, fill: 'both' });
-        const letterFold = letter.animate([
-          { transform: 'translateX(-50%) perspective(1000px) rotateY(0deg)', filter: 'brightness(1)' },
-          { transform: narrow
-            ? 'translateX(-50%) translateY(-14%) perspective(850px) rotateX(36deg) scaleY(.55)'
-            : 'translateX(-2%) perspective(1000px) rotateY(-32deg) scale(.94)',
-            filter: 'brightness(.85)', offset: .58 },
-          { transform: narrow
-            ? 'translateX(-50%) translateY(-140%) perspective(850px) rotateX(58deg)'
-            : 'translateX(calc(50vw + 15%)) perspective(1000px) rotateY(-49deg) scale(.88)',
-            filter: 'brightness(.68)' }
-        ], { duration: 445, easing: 'cubic-bezier(.42,.05,.39,1)', fill: 'both' });
-        document.body.classList.add('opening-gate');
-        document.body.classList.add('opened');
-        await curtain.finished.catch(() => {});
-        entry.hidden = true;
-        curtain.cancel();
-        letterFold.cancel();
-      } else {
-        document.body.classList.add('opened');
-        entry.hidden = true;
-      }
-
+      document.body.classList.add('opened');
+      entry.hidden = true;
       entry.dataset.state = 'open';
+      entry.dataset.gateMotion = completedMotion;
+      delete entry.dataset.gatePaused;
+      delete entry.dataset.gateFallback;
+      delete entry.dataset.gateStage;
       entry.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('is-locked');
       main.inert = false;
       main.focus({ preventScroll: true });
       if (anchor) document.getElementById(anchor)?.scrollIntoView({ behavior: 'instant' });
-      document.dispatchEvent(new Event('shahi:gate-opened'));
+      document.dispatchEvent(new CustomEvent('shahi:gate-opened', {
+        detail: { motion: completedMotion, durationMs: Math.round(performance.now() - started) }
+      }));
     }
 
     openBtn.addEventListener('click', openGate);
 
     // Replay button in footer
     $('#replayInvitation')?.addEventListener('click', () => {
+      if (entry.dataset.state !== 'open') return;
+      if (activeAbort) activeAbort();
       window.scrollTo({ top: 0, behavior: 'instant' });
+      clearInlineGateStyles();
       entry.hidden = false;
-      delete entry.dataset.state;
+      entry.dataset.state = 'closed';
+      delete entry.dataset.gateMotion;
+      delete entry.dataset.gateLayout;
+      delete entry.dataset.gatePaused;
       entry.removeAttribute('aria-hidden');
-      document.body.classList.remove('opened', 'opening-gate');
+      document.body.classList.remove('opened');
       document.body.classList.add('is-locked');
       main.inert = true;
       openBtn.disabled = false;
@@ -214,7 +415,8 @@
      3. SAVE THE DATE (SLOT MACHINE REEL REVEAL)
      -------------------------------------------------------------------------- */
   function setUpDateReveal() {
-    const dt = new Date(`${cfg.date}T12:00:00`);
+    const rawDt = new Date(`${cfg.date}T12:00:00`);
+    const dt = isNaN(rawDt.getTime()) ? new Date('2026-10-11T12:00:00') : rawDt;
     const values = [
       String(dt.getDate()).padStart(2, '0'),
       dt.toLocaleString('en-IN', { month: 'short' }).toUpperCase(),
@@ -229,6 +431,19 @@
     if (!btn || !stage) return;
 
     let state = 'hidden';
+
+    const easeReel = t => {
+      if (t <= 0) return 0;
+      if (t >= 1) return 1;
+      const sample = u => (((3 * (1 - u) * (1 - u) * u) * 0.22) + (3 * (1 - u) * u * u * 0.23) + (u * u * u));
+      let lo = 0, hi = 1, u = t;
+      for (let i = 0; i < 8; i++) {
+        u = (lo + hi) * 0.5;
+        if (sample(u) < t) lo = u;
+        else hi = u;
+      }
+      return ((3 * (1 - u) * (1 - u) * u) * 0.68) + (3 * (1 - u) * u * u * 1.0) + (u * u * u);
+    };
 
     btn.addEventListener('click', () => {
       if (state === 'revealed') {
@@ -265,7 +480,7 @@
         });
       };
 
-      if (prefersReduced) {
+      if (reducedMotion.matches) {
         finalize();
         return;
       }
@@ -276,7 +491,7 @@
         Array.from({ length: 15 }, (_, i) => months[(dt.getMonth() + i + 2) % 12]),
         Array.from({ length: 16 }, (_, i) => String(dt.getFullYear() - 4 + (i % 8)))
       ];
-      const animations = ids.map((id, index) => {
+      const reels = ids.map((id, index) => {
         const value = document.getElementById(id);
         const sequence = ['', ...sequences[index], values[index]];
         value.replaceChildren(...sequence.map(item => {
@@ -284,15 +499,233 @@
           row.textContent = item;
           return row;
         }));
-        return value.animate([
-          { transform: 'translateY(0)' },
-          { transform: `translateY(${-100 * (sequence.length - 1)}%)` }
-        ], { duration: 1420 + index * 155, easing: 'cubic-bezier(.22,.68,.23,1)', fill: 'forwards' });
+        const shift = -100 * (sequence.length - 1);
+        return { value, shift, offset: `${shift}%`, duration: 1420 + index * 155 };
       });
-      Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
-        animations.forEach(animation => animation.cancel());
+
+      const totalDuration = reels.at(-1).duration;
+      const reelProgress = reels.map(() => 0);
+      const reelFinished = reels.map(() => false);
+      let animations = [];
+      const lifecyclePaused = new Set();
+      let cssFallback = false;
+      let rafFallback = false;
+      let rafId = 0;
+      let verifyCssFrame = 0;
+      let elapsed = 0;
+      let resumedAt = null;
+      let pageAway = false;
+      let timer;
+      let settled = false;
+
+      const foregroundTime = (now = performance.now()) =>
+        elapsed + (resumedAt === null ? 0 : now - resumedAt);
+
+      function pauseMotion() {
+        stage.classList.add('is-date-paused');
+        animations.forEach(animation => {
+          if (animation.playState !== 'running' && animation.playState !== 'pending') return;
+          try {
+            animation.pause();
+            lifecyclePaused.add(animation);
+          } catch {}
+        });
+      }
+
+      function resumeMotion() {
+        stage.classList.remove('is-date-paused');
+        lifecyclePaused.forEach(animation => {
+          if (animation.playState === 'finished' || animation.playState === 'idle') return;
+          try { animation.play(); } catch {}
+        });
+        lifecyclePaused.clear();
+      }
+
+      function clearReelProperties() {
+        reels.forEach(({ value }) => {
+          value.style.removeProperty('--reel-offset');
+          value.style.removeProperty('--reel-duration');
+          value.style.removeProperty('--reel-delay');
+          value.style.removeProperty('transform');
+        });
+      }
+
+      function stopAnimations() {
+        lifecyclePaused.clear();
+        animations.forEach(animation => {
+          animation.finished.catch(() => {});
+          try { animation.cancel(); } catch {}
+        });
+        animations = [];
+      }
+
+      function applyRafReels() {
+        if (settled || !rafFallback) return;
+        const fg = foregroundTime();
+        reels.forEach(({ value, shift, offset, duration }, index) => {
+          const p = Math.max(fg, reelProgress[index]);
+          if (reelFinished[index] || p >= duration) {
+            reelFinished[index] = true;
+            value.style.transform = `translateY(${offset})`;
+          } else {
+            const ratio = Math.min(1, Math.max(0, p / duration));
+            value.style.transform = `translateY(${(shift * easeReel(ratio)).toFixed(3)}%)`;
+          }
+        });
+        if (fg < totalDuration) {
+          rafId = requestAnimationFrame(applyRafReels);
+        }
+      }
+
+      function activateRafReels() {
+        if (settled || rafFallback || reducedMotion.matches) return;
+        const fg = foregroundTime();
+        reels.forEach(({ duration }, index) => {
+          const anim = animations[index];
+          const animTime = anim && typeof anim.currentTime === 'number' ? anim.currentTime : 0;
+          reelProgress[index] = Math.max(reelProgress[index], Math.min(duration, Math.max(fg, animTime)));
+          if (anim?.playState === 'finished' || reelProgress[index] >= duration) reelFinished[index] = true;
+        });
+        rafFallback = true;
+        cssFallback = false;
+        stopAnimations();
+        stage.classList.remove('is-css-spinning');
+        applyRafReels();
+      }
+
+      function onReelCssCancel() {
+        if (!settled && cssFallback && !pageAway && !document.hidden && !reducedMotion.matches) {
+          activateRafReels();
+        }
+      }
+
+      function activateCssFallback() {
+        if (settled || cssFallback || rafFallback) return;
+        const fg = foregroundTime();
+        reels.forEach(({ duration }, index) => {
+          const anim = animations[index];
+          const animTime = anim && typeof anim.currentTime === 'number' ? anim.currentTime : 0;
+          reelProgress[index] = Math.max(reelProgress[index], Math.min(duration, Math.max(fg, animTime)));
+          if (anim?.playState === 'finished' || reelProgress[index] >= duration) reelFinished[index] = true;
+        });
+        cssFallback = true;
+        stopAnimations();
+        reels.forEach(({ value, offset, duration }, index) => {
+          if (reelFinished[index]) {
+            value.style.transform = `translateY(${offset})`;
+            return;
+          }
+          value.style.setProperty('--reel-offset', offset);
+          value.style.setProperty('--reel-duration', `${duration}ms`);
+          value.style.setProperty('--reel-delay', `${-reelProgress[index]}ms`);
+          value.addEventListener('animationcancel', onReelCssCancel, { once: true });
+        });
+        void stage.offsetWidth;
+        stage.classList.add('is-css-spinning');
+        if (pageAway || document.hidden) stage.classList.add('is-date-paused');
+
+        verifyCssFrame = requestAnimationFrame(() => {
+          verifyCssFrame = 0;
+          if (settled || rafFallback || reducedMotion.matches) return;
+          const activeReel = reels.find((_, idx) => !reelFinished[idx]);
+          if (!activeReel) return;
+          const rs = getComputedStyle(activeReel.value);
+          if (rs.animationName === 'none' || (parseFloat(rs.animationDuration) || 0) <= 0.05) {
+            activateRafReels();
+          }
+        });
+      }
+
+      function cleanupController() {
+        clearTimeout(timer);
+        if (rafId) cancelAnimationFrame(rafId);
+        if (verifyCssFrame) cancelAnimationFrame(verifyCssFrame);
+        reels.forEach(({ value }) => value.removeEventListener('animationcancel', onReelCssCancel));
+        document.removeEventListener('visibilitychange', syncClock);
+        document.removeEventListener('freeze', onPageHide);
+        window.removeEventListener('pagehide', onPageHide);
+        window.removeEventListener('pageshow', onPageShow);
+        if (reducedMotion.removeEventListener) reducedMotion.removeEventListener('change', onMotionChange);
+        else reducedMotion.removeListener(onMotionChange);
+        stopAnimations();
+        stage.classList.remove('is-css-spinning', 'is-date-paused');
+        clearReelProperties();
+      }
+
+      function finish() {
+        if (settled) return;
+        settled = true;
+        cleanupController();
         finalize();
-      });
+      }
+
+      function syncClock() {
+        if (settled) return;
+        clearTimeout(timer);
+        const now = performance.now();
+        if (pageAway || document.hidden) {
+          if (resumedAt !== null) elapsed += now - resumedAt;
+          resumedAt = null;
+          pauseMotion();
+          return;
+        }
+
+        resumedAt ??= now;
+        resumeMotion();
+        const remaining = totalDuration - foregroundTime(now);
+        if (remaining <= 0) {
+          finish();
+          return;
+        }
+        timer = setTimeout(syncClock, Math.max(16, Math.ceil(remaining)));
+      }
+
+      function onPageHide() {
+        pageAway = true;
+        syncClock();
+      }
+
+      function onPageShow() {
+        pageAway = false;
+        syncClock();
+      }
+
+      function onMotionChange() {
+        if (reducedMotion.matches) finish();
+      }
+
+      try {
+        for (const { value, offset, duration } of reels) {
+          animations.push(value.animate([
+            { transform: 'translateY(0)' },
+            { transform: `translateY(${offset})` }
+          ], { duration, easing: 'cubic-bezier(.22,.68,.23,1)', fill: 'forwards' }));
+        }
+      } catch {
+        activateCssFallback();
+      }
+
+      if (!cssFallback) {
+        animations.forEach((animation, index) => {
+          animation.finished.then(
+            () => {
+              reelFinished[index] = true;
+              reelProgress[index] = reels[index].duration;
+            },
+            () => {
+              if (!settled && !reelFinished[index]) activateCssFallback();
+            }
+          );
+        });
+      }
+
+      document.addEventListener('visibilitychange', syncClock);
+      document.addEventListener('freeze', onPageHide);
+      window.addEventListener('pagehide', onPageHide);
+      window.addEventListener('pageshow', onPageShow);
+      if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', onMotionChange);
+      else reducedMotion.addListener(onMotionChange);
+      syncClock();
     });
   }
 
@@ -371,6 +804,7 @@
         img.draggable = false;
         img.alt = item.caption || `Couple photograph ${index + 1}`;
         img.loading = 'lazy';
+        img.decoding = 'async';
         img.onerror = () => {
           img.onerror = null;
           img.src = `assets/photos/photo-${((index % 3) + 1)}.jpg`;
@@ -405,7 +839,7 @@
         const targetLeft = target.offsetLeft - (track.clientWidth - target.clientWidth) / 2;
         track.scrollTo({
           left: Math.max(0, targetLeft),
-          behavior: prefersReduced ? 'auto' : 'smooth'
+          behavior: reducedMotion.matches ? 'auto' : 'smooth'
         });
       }
     };
@@ -417,7 +851,7 @@
       e.preventDefault();
       dismissHint();
       if (direction) scrollToIndex(nearestFrame() + direction);
-      else track.scrollTo({ left: e.key === 'Home' ? 0 : track.scrollWidth, behavior: prefersReduced ? 'auto' : 'smooth' });
+      else track.scrollTo({ left: e.key === 'Home' ? 0 : track.scrollWidth, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
     });
 
     // Mouse and Touch drag-to-glide rail mechanism with physical suspension kinetics
@@ -434,7 +868,7 @@
 
     function settle(velocity, coast) {
       cancelAnimationFrame(dampAnimFrame);
-      if (prefersReduced) return applySwing(0);
+      if (reducedMotion.matches) return applySwing(0);
       const start = performance.now();
       const left = track.scrollLeft;
       const distance = coast ? clamp(-velocity * 165, 250) : 0;
@@ -474,7 +908,7 @@
       drag.previousX = e.clientX;
       drag.time = now;
       track.scrollLeft = drag.left - dx;
-      if (!prefersReduced) applySwing(clamp(-drag.velocity * 4, 5.5), clamp(drag.velocity * 6, 8));
+      if (!reducedMotion.matches) applySwing(clamp(-drag.velocity * 4, 5.5), clamp(drag.velocity * 6, 8));
     });
     function release(e) {
       if (e.pointerId !== drag?.id) return;
@@ -513,6 +947,7 @@
     image.className = 'ceremony-illustration';
     image.alt = `${c.name} illustration`;
     image.loading = 'lazy';
+    image.decoding = 'async';
     image.src = `assets/media/${c.art || 'mehendi.webp'}`;
     image.onerror = () => {
       image.src = 'assets/fallback/lotus.svg';
@@ -813,34 +1248,129 @@
     const audio = $('#weddingAudio');
     if (!musicBtn || !audio) return;
 
-    audio.src = cfg.music || 'assets/audio/Wedding-web.mp3';
-    audio.volume = Math.max(0, Math.min(1, Number(cfg.musicVolume) || 0.5));
+    const configured = Boolean(cfg.music);
+    if (configured) audio.src = cfg.music;
+    const volume = Number(cfg.musicVolume ?? .5);
+    audio.volume = Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : .5;
 
-    musicBtn.addEventListener('click', async () => {
-      if (!audio.src || !cfg.music) {
+    let handledFirstGesture = false;
+    let wantsPlayback = false;
+    let reachedPlayback = false;
+    let awaitingResumeConfirm = false;
+    let resumeOnReturn = false;
+    let pageAway = false;
+    let playRequest = 0;
+    const isAway = () => document.hidden || pageAway;
+
+    function syncButton() {
+      const playing = !audio.paused && !audio.ended && !isAway();
+      musicBtn.classList.toggle('playing', playing);
+      musicBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+      musicBtn.setAttribute('aria-label', playing ? 'Pause background music' : 'Play background music');
+    }
+
+    function startPlayback() {
+      if (!configured || !wantsPlayback || isAway()) return;
+      const request = ++playRequest;
+      function denied() {
+        if (request !== playRequest) return;
+        wantsPlayback = false;
+        awaitingResumeConfirm = false;
+        syncButton();
+      }
+      try {
+        Promise.resolve(audio.play()).then(() => {
+          if (request !== playRequest) return;
+          awaitingResumeConfirm = false;
+          syncButton();
+        }, denied);
+      } catch {
+        denied();
+      }
+    }
+
+    function suspend() {
+      // Preserve consent when interrupting either active playback or a pending return resume.
+      if (wantsPlayback && (reachedPlayback || awaitingResumeConfirm) && !audio.ended) {
+        resumeOnReturn = true;
+      }
+      awaitingResumeConfirm = false;
+      playRequest++;
+      audio.pause();
+      reachedPlayback = false;
+      if (!resumeOnReturn) wantsPlayback = false;
+      syncButton();
+    }
+
+    function returnToPage() {
+      if (isAway() || !resumeOnReturn) return;
+      resumeOnReturn = false;
+      awaitingResumeConfirm = true;
+      startPlayback();
+    }
+
+    musicBtn.addEventListener('click', () => {
+      handledFirstGesture = true;
+      if (!configured) {
         toast('No audio file configured in config.js');
         return;
       }
-
-      if (!audio.paused) {
+      resumeOnReturn = false;
+      awaitingResumeConfirm = false;
+      wantsPlayback = !wantsPlayback && audio.paused;
+      if (wantsPlayback) startPlayback();
+      else {
+        playRequest++;
         audio.pause();
-        musicBtn.classList.remove('playing');
-        musicBtn.setAttribute('aria-label', 'Play background music');
-      } else {
-        try {
-          await audio.play();
-          musicBtn.classList.add('playing');
-          musicBtn.setAttribute('aria-label', 'Pause background music');
-        } catch (err) {
-          console.warn('Audio playback error:', err);
-          musicBtn.classList.remove('playing');
-        }
+        reachedPlayback = false;
       }
+      syncButton();
     });
 
-    audio.addEventListener('error', () => {
-      musicBtn.classList.remove('playing');
+    audio.addEventListener('play', () => {
+      if (isAway() || !wantsPlayback) audio.pause();
+      syncButton();
     });
+    audio.addEventListener('playing', () => {
+      if (isAway() || !wantsPlayback) audio.pause();
+      else {
+        reachedPlayback = true;
+        awaitingResumeConfirm = false;
+      }
+      syncButton();
+    });
+    audio.addEventListener('pause', () => {
+      if (audio.paused) {
+        if (isAway() && wantsPlayback && (reachedPlayback || awaitingResumeConfirm) && !audio.ended) {
+          resumeOnReturn = true;
+        }
+        if (!isAway() && !resumeOnReturn && !awaitingResumeConfirm) wantsPlayback = false;
+        reachedPlayback = false;
+      }
+      syncButton();
+    });
+    for (const event of ['ended', 'error']) {
+      audio.addEventListener(event, () => {
+        wantsPlayback = reachedPlayback = resumeOnReturn = awaitingResumeConfirm = false;
+        syncButton();
+      });
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (isAway()) suspend();
+      else returnToPage();
+    });
+    document.addEventListener('freeze', suspend);
+    window.addEventListener('pagehide', () => { pageAway = true; suspend(); });
+    window.addEventListener('pageshow', () => { pageAway = false; returnToPage(); });
+    syncButton();
+
+    return () => {
+      if (handledFirstGesture) return;
+      handledFirstGesture = true;
+      wantsPlayback = true;
+      startPlayback();
+    };
   }
 
   /* --------------------------------------------------------------------------
@@ -850,7 +1380,7 @@
     // Silk scroll roots have their own measured reveal system and must not be
     // translated/faded by this generic observer at the same time.
     const revealEls = $$('.reveal:not(.silk-scroll)');
-    if (!('IntersectionObserver' in window) || prefersReduced) {
+    if (!('IntersectionObserver' in window) || reducedMotion.matches) {
       revealEls.forEach(el => el.classList.add('is-visible'));
       return;
     }
@@ -876,12 +1406,11 @@
       image.src = fallback;
     }, true);
     populateBasics();
-    setUpGate();
+    setUpGate(setUpAudio());
     setUpDateReveal();
     buildGallery();
     buildCeremonies();
     buildRsvpFields();
-    setUpAudio();
 
     // Event listeners
     $('#saveCalendarBottom')?.addEventListener('click', downloadCalendar);
@@ -896,7 +1425,7 @@
       window.open(cfg.instagramUrl, '_blank', 'noopener,noreferrer');
     });
     $('#ryLocBtn')?.addEventListener('click', () => {
-      document.querySelector('#ceremonies')?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
+      document.querySelector('#ceremonies')?.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth' });
     });
     $('#ryCalBtn')?.addEventListener('click', downloadCalendar);
     $('#rsvpForm')?.addEventListener('submit', submitRsvp);

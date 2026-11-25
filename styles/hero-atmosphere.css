@@ -1,0 +1,208 @@
+/* Decorative atmosphere for the approved Shahi Patra hero.
+   Coordinates are bound to measured artwork regions so birds stay in open sky
+   without crossing the couple names, and ripples stay inside the visible water. */
+#home.hero {
+  isolation: isolate;
+}
+
+#home.hero .shahi-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  contain: layout paint style;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+#home.hero .shahi-atmosphere.is-active {
+  visibility: visible;
+}
+
+#home.hero .hero-content,
+#home.hero .hero-bottom {
+  position: relative;
+  z-index: 4;
+}
+
+.shahi-bird-flight {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--sky-top, 4%);
+  height: var(--sky-height, 34%);
+  overflow: hidden;
+}
+
+.shahi-bird {
+  position: absolute;
+  top: var(--bird-top);
+  left: -10vw;
+  display: block;
+  width: var(--bird-size);
+  color: rgba(66, 44, 42, 0.78);
+  opacity: 0;
+  transform: translate3d(0, 0, 0) scale(var(--bird-depth));
+  transform-origin: center;
+  animation: shahi-bird-flight var(--bird-duration) linear infinite;
+  animation-delay: var(--bird-delay);
+  animation-play-state: paused;
+}
+
+.shahi-bird svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform-origin: 50% 56%;
+  animation: shahi-wing-breath var(--wing-duration) ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+
+.shahi-atmosphere.is-active .shahi-bird,
+.shahi-atmosphere.is-active .shahi-bird svg {
+  animation-play-state: running;
+}
+
+.shahi-atmosphere.is-active .shahi-bird {
+  will-change: transform, opacity;
+}
+
+@keyframes shahi-bird-flight {
+  0% {
+    opacity: 0;
+    transform: translate3d(-8vw, 0, 0) scale(var(--bird-depth));
+  }
+  9% { opacity: 0; }
+  17% { opacity: var(--bird-opacity); }
+  75% { opacity: var(--bird-opacity); }
+  88% { opacity: 0; }
+  100% {
+    opacity: 0;
+    transform: translate3d(124vw, var(--bird-rise), 0) scale(calc(var(--bird-depth) * 1.06));
+  }
+}
+
+@keyframes shahi-wing-breath {
+  from { transform: scaleY(0.76) rotate(-1.4deg); }
+  to { transform: scaleY(1.08) rotate(1.4deg); }
+}
+
+/* Measured water pool box inside the visible hero crop (fallback matches 1366x768). */
+.shahi-pool-effects {
+  position: absolute;
+  left: var(--pool-left, 14%);
+  top: var(--pool-top, 90.4%);
+  width: var(--pool-width, 72%);
+  height: var(--pool-height, 8.8%);
+  overflow: hidden;
+}
+
+.shahi-pool-event {
+  position: absolute;
+  left: var(--ripple-x);
+  top: var(--ripple-y);
+  display: block;
+  width: 0;
+  height: 0;
+}
+
+.shahi-pool-ripple {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: var(--ripple-width);
+  height: calc(var(--ripple-width) * 0.28);
+  border: 1px solid rgba(255, 244, 215, 0.64);
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(255, 250, 222, 0.18);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.16);
+  animation: shahi-water-ripple var(--ripple-duration) ease-out infinite;
+  animation-delay: var(--ripple-delay);
+  animation-play-state: paused;
+}
+
+.shahi-pool-drop {
+  position: absolute;
+  left: -1px;
+  top: -2px;
+  display: block;
+  width: 2px;
+  height: 7px;
+  border-radius: 50% 50% 46% 46%;
+  background: linear-gradient(rgba(255, 248, 223, 0), rgba(255, 248, 223, 0.78));
+  animation: shahi-water-drop var(--ripple-duration) ease-out infinite;
+  animation-delay: var(--ripple-delay);
+  animation-play-state: paused;
+}
+
+.shahi-pool-ripple::after {
+  content: '';
+  position: absolute;
+  inset: -4px -7px;
+  border: 1px solid rgba(255, 240, 204, 0.36);
+  border-radius: 50%;
+}
+
+.shahi-atmosphere.is-active .shahi-pool-ripple,
+.shahi-atmosphere.is-active .shahi-pool-drop {
+  animation-play-state: running;
+}
+
+.shahi-atmosphere.is-active .shahi-pool-ripple {
+  will-change: transform, opacity;
+}
+
+@keyframes shahi-water-ripple {
+  0%, 34% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.16);
+  }
+  39% { opacity: 0.6; }
+  55% { opacity: 0.34; }
+  72% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(4.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(4.2);
+  }
+}
+
+@keyframes shahi-water-drop {
+  0%, 27% { opacity: 0; transform: translateY(-15px) scaleY(0.72); }
+  31% { opacity: 0.65; }
+  37% { opacity: 0; transform: translateY(0) scaleY(1); }
+  100% { opacity: 0; transform: translateY(0) scaleY(1); }
+}
+
+@media (max-width: 640px) {
+  .shahi-bird {
+    color: rgba(66, 44, 42, 0.72);
+  }
+
+  .shahi-bird:nth-child(n + 6) {
+    display: none;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .shahi-bird:nth-child(n + 5) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #home.hero .shahi-atmosphere {
+    display: none !important;
+  }
+
+  .shahi-bird,
+  .shahi-bird svg,
+  .shahi-pool-ripple,
+  .shahi-pool-drop {
+    animation: none !important;
+  }
+}

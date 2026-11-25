@@ -81,7 +81,9 @@ body {
 
 body.is-locked {
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 button, input, textarea {
@@ -125,7 +127,9 @@ img {
   inset: 0;
   pointer-events: none;
   opacity: 0.16;
+  contain: strict;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.78' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' opacity='.14' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
 }
 
 /* Parchment Section Background */
@@ -151,12 +155,16 @@ img {
   opacity: 0;
   transform: translateY(32px);
   transition: opacity 0.85s cubic-bezier(0.2, 0.7, 0.3, 1), transform 0.85s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.reveal:not(.silk-scroll):not(.is-visible) {
   will-change: opacity, transform;
 }
 
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
+  will-change: auto;
 }
 
 /* Royal Notched/Cut-Corner Plaque Button (Reference Matching) */
@@ -256,18 +264,30 @@ img {
   background: transparent;
   overflow: hidden;
   pointer-events: auto;
+  touch-action: none;
+  perspective: 1450px;
+  perspective-origin: 50% 46%;
+}
+
+.entry::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 50% 44%, rgba(34, 4, 16, 0.22) 0%, rgba(22, 2, 10, 0.48) 100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .entry[hidden] { display: none; }
 .entry[data-state="opening"] { pointer-events: none; }
-.entry[data-state="opening"] .entry-door { border-color: transparent; }
 
 /* Left & Right Burgundy Velvet Curtains (Authentic Indian Mughal Floral Damask) */
 .entry-door {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 50vw;
+  width: calc(50vw + 2px);
   height: 100%;
   overflow: hidden;
   background-color: #48021c;
@@ -276,19 +296,31 @@ img {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='70' viewBox='0 0 52 70'%3E%3Cg fill='none' stroke='%23d4a359' stroke-width='.7' stroke-linecap='round' stroke-linejoin='round' opacity='.15'%3E%3Cpath d='M26 6c-5 8-5 15 0 22 5-7 5-14 0-22Zm0 22v22M25 34c-8-6-15-5-18 1 7 0 13 3 18 9m2-6c8-6 15-5 18 1-7 0-13 3-18 9M25 46c-6-5-13-3-15 3 6-1 11 2 15 7m2-5c6-5 13-3 15 3-6-1-11 2-15 7'/%3E%3Cpath d='M26 56c-4 3-6 7-6 12 4-1 6-4 6-8 0 4 2 7 6 8 0-5-2-9-6-12Z'/%3E%3Ccircle cx='26' cy='28' r='1.6' fill='%23f4d48d' fill-opacity='.35'/%3E%3Cpath d='M4 2c3 3 5 7 5 12M48 56c-3 3-5 7-5 12' opacity='.5'/%3E%3Cpath d='M9 65c2-1 4-3 4-6M43 5c-2 1-4 3-4 6' opacity='.4'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 100% 100%, 52px 70px;
   box-shadow: inset 0 0 50px rgba(18, 0, 8, 0.65);
-  transition: transform 1.85s cubic-bezier(0.65, 0.05, 0.1, 1), border-radius 1.85s cubic-bezier(0.65, 0.05, 0.1, 1), filter 1.85s ease;
-  will-change: transform, border-radius;
   z-index: 1;
 }
 
 .entry-door--left {
   left: 0;
   border-right: 2px solid var(--gold);
+  --door-part: -8%;
+  --door-swing: -81%;
+  --door-exit: -111%;
+  --door-part-angle: -12deg;
+  --door-swing-angle: -23deg;
+  --door-exit-angle: -26deg;
+  transform-origin: left center;
 }
 
 .entry-door--right {
   right: 0;
   border-left: 2px solid var(--gold);
+  --door-part: 8%;
+  --door-swing: 81%;
+  --door-exit: 111%;
+  --door-part-angle: 12deg;
+  --door-swing-angle: 23deg;
+  --door-exit-angle: 26deg;
+  transform-origin: right center;
 }
 
 /* Thin Outer Decorative Side Strips with Repeating Small Golden Motif */
@@ -416,9 +448,105 @@ img {
     inset -14px 0 24px -8px rgba(60, 10, 25, 0.25),
     0 0 45px rgba(26, 0, 11, 0.55);
   transform-origin: center center;
-  transition: transform 0.38s cubic-bezier(0.68, 0, 0.32, 1), opacity 0.05s linear;
-  will-change: transform, opacity;
   z-index: 5;
+}
+
+/* Composited layers keep the full gate surface out of the animation paint path. */
+.entry[data-state="opening"][data-gate-motion="cinematic"]::before {
+  animation: shahi-gate-scrim var(--gate-duration, 2850ms) linear both;
+}
+
+.entry[data-state="opening"][data-gate-motion="cinematic"] .entry-door {
+  border-color: rgba(212, 163, 89, 0.28);
+  box-shadow: inset 0 0 50px rgba(18, 0, 8, 0.65), 0 0 38px rgba(18, 0, 8, 0.56);
+  backface-visibility: hidden;
+  animation: shahi-gate-door var(--gate-duration, 2850ms) linear both;
+}
+
+.entry[data-state="opening"][data-gate-motion="cinematic"] .entry-letter {
+  backface-visibility: hidden;
+  transform-origin: 88% 45%;
+  animation: shahi-gate-letter var(--gate-duration, 2850ms) cubic-bezier(.34,.04,.24,1) both;
+}
+
+.entry[data-gate-layout="portrait"][data-state="opening"] .entry-letter {
+  transform-origin: 50% 14%;
+  animation-name: shahi-gate-letter-portrait;
+}
+
+.entry-seam {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: min(72%, 720px);
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #d2a074 24%, #ffe6b7 53%, #d2a074 78%, transparent);
+  box-shadow: 0 0 14px #f6ca8259;
+  opacity: 0;
+  pointer-events: none;
+  --seam-small: scaleX(.06);
+}
+
+.entry[data-gate-layout="portrait"] .entry-seam {
+  width: 3px;
+  height: min(62%, 520px);
+  background: linear-gradient(180deg, transparent, #d2a074 20%, #ffe6b7 50%, #d2a074 80%, transparent);
+  --seam-small: scaleY(.12);
+}
+
+.entry[data-state="opening"][data-gate-motion="cinematic"] .entry-seam {
+  animation: shahi-gate-seam var(--gate-duration, 2850ms) linear both;
+}
+
+.entry[data-state="opening"][data-gate-motion="cinematic"][data-gate-fallback="raf"]::before,
+.entry[data-state="opening"][data-gate-motion="cinematic"][data-gate-fallback="raf"] :is(.entry-door, .entry-letter, .entry-seam) {
+  animation: none !important;
+  transition: none !important;
+}
+
+.entry[data-state="opening"][data-gate-motion="cinematic"][data-gate-paused]::before,
+.entry[data-state="opening"][data-gate-motion="cinematic"][data-gate-paused] :is(.entry-door, .entry-letter, .entry-seam) {
+  animation-play-state: paused;
+}
+
+@keyframes shahi-gate-scrim {
+  0%, 25% { opacity: .44; }
+  74%, to { opacity: 0; }
+}
+
+@keyframes shahi-gate-letter {
+  0%, 3% { opacity: 1; transform: translate3d(-50%, 0, 0) rotateY(0); }
+  12.5% { opacity: 1; transform: translate3d(-31%, -1%, 4px) rotateY(-20deg); }
+  23.5%, to { opacity: 0; transform: translate3d(calc(50vw + 12%), -2%, 0) rotateY(-47deg); }
+}
+
+@keyframes shahi-gate-letter-portrait {
+  0%, 3% { opacity: 1; transform: translate3d(-50%, 0, 0) rotateX(0); }
+  12.5% { opacity: 1; transform: translate3d(-50%, -27%, 4px) rotateX(26deg) scale(.98); }
+  23%, to { opacity: 0; transform: translate3d(-50%, -174%, 0) rotateX(55deg) scale(.94); }
+}
+
+@keyframes shahi-gate-door {
+  0%, 26% {
+    transform: translate3d(0, 0, 0) rotateY(0);
+    animation-timing-function: cubic-bezier(.45,.04,.42,1);
+  }
+  44% {
+    transform: translate3d(var(--door-part), 0, 0) rotateY(var(--door-part-angle));
+    animation-timing-function: cubic-bezier(.26,.58,.18,1);
+  }
+  78% {
+    transform: translate3d(var(--door-swing), 0, 0) rotateY(var(--door-swing-angle));
+    animation-timing-function: ease-out;
+  }
+  to { transform: translate3d(var(--door-exit), 0, 0) rotateY(var(--door-exit-angle)); }
+}
+
+@keyframes shahi-gate-seam {
+  0%, 24% { opacity: 0; transform: translate(-50%, -50%) var(--seam-small); }
+  31% { opacity: .76; transform: translate(-50%, -50%) scale(1); }
+  43%, to { opacity: 0; transform: translate(-50%, -50%) scale(1); }
 }
 
 /* Delicate Stitched Vertical Borders on Center Letter Edges */
@@ -560,12 +688,6 @@ img {
   background-size: cover;
   background-repeat: no-repeat;
   z-index: 0;
-  transform: scale(1.02);
-  transition: transform 8s ease-out;
-}
-
-body.opened .hero-backdrop {
-  transform: scale(1);
 }
 
 .hero-skyshine {
@@ -604,7 +726,6 @@ body.opened .hero-backdrop {
   opacity: 0;
   transform: translateY(18px);
   color: #4a041f;
-  transition: opacity 1s cubic-bezier(0.2, 0.7, 0.3, 1), transform 1s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 .hero-amp {
@@ -615,30 +736,29 @@ body.opened .hero-backdrop {
   color: #721235;
   opacity: 0;
   transform: translateY(18px);
-  transition: opacity 1s cubic-bezier(0.2, 0.7, 0.3, 1), transform 1s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
-/* Progressive Name Timing (Observed in Original Video) */
-body.opened .hero-name--bride {
+/* Preserve the stagger when the opening is interrupted by a tab switch. */
+body.opened :is(.hero-name, .hero-amp) {
   opacity: 1;
   transform: translateY(0);
-  transition-delay: 0s;
 }
 
-body.opened .hero-amp {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: .17s;
+body.opened .entry[data-gate-motion="cinematic"] ~ #mainContent :is(.hero-name, .hero-amp) {
+  animation: shahi-hero-name 1s cubic-bezier(.2,.7,.3,1) var(--name-delay, 0s) both;
 }
 
-body.opened .hero-name--groom {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: .34s;
+.hero-amp { --name-delay: .17s; }
+.hero-name--groom { --name-delay: .34s; }
+
+body.opened .entry[data-gate-paused] ~ #mainContent :is(.hero-name, .hero-amp) {
+  animation-play-state: paused;
 }
-body.opening-gate .hero-name--bride { transition-delay: 1.29s; }
-body.opening-gate .hero-amp { transition-delay: 1.48s; }
-body.opening-gate .hero-name--groom { transition-delay: 1.67s; }
+
+@keyframes shahi-hero-name {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 .hero::after {
   content: '';
@@ -1011,7 +1131,7 @@ body.opening-gate .hero-name--groom { transition-delay: 1.67s; }
   line-height: 1;
   color: #fff6eb;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-  transition: transform 0.08s ease, filter 0.08s ease;
+  transition: none;
 }
 
 /* Spinning Slot Machine Effect */

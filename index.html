@@ -7,15 +7,19 @@
   <meta name="description" content="A royal wedding celebration — you are warmly invited." />
   <title>Aditi &amp; Rahul • The Wedding Invitation</title>
   <link rel="preload" href="assets/fonts/Cormorant-Garamond.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/media/mandap-portrait.webp" as="image" media="(max-width: 640px)" />
+  <link rel="preload" href="assets/media/mandap_dusk.webp" as="image" media="(min-width: 641px)" />
   <link rel="icon" type="image/svg+xml" href="assets/fallback/lotus.svg" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="styles/silk-scroll-delay-bounce.css" />
   <link rel="stylesheet" href="styles/entrance-soft-floral-override.css" />
   <link rel="stylesheet" href="styles/date-gold-rain.css" />
+  <link rel="stylesheet" href="styles/hero-atmosphere.css" />
   <script src="config.js" defer></script>
   <script src="main.js" defer></script>
   <script src="scripts/silk-scroll-delay-bounce.js" defer></script>
   <script src="scripts/date-gold-rain.js" defer></script>
+  <script src="scripts/hero-atmosphere.js" defer></script>
 </head>
 <body class="is-locked">
   <div class="paper-grain" aria-hidden="true"></div>
@@ -90,6 +94,7 @@
       <div class="door-outer-strip door-outer-strip--right" aria-hidden="true"></div>
     </div>
 
+    <div class="entry-seam" aria-hidden="true"></div>
   </section>
 
   <!-- MAIN SCROLLABLE CONTENT -->
@@ -130,7 +135,7 @@
             <p id="familyFirstParents" class="family-names"></p>
             <p id="familyFirstGrandLabel" class="rel-label">Grandson of</p>
             <p id="familyFirstGrand" class="family-names"></p>
-            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" />
+            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" decoding="async" />
           </div>
         </div>
         <div class="scroll-hardware scroll-hardware--bottom" aria-hidden="true">
@@ -160,7 +165,7 @@
             <p id="familySecondParents" class="family-names"></p>
             <p id="familySecondGrandLabel" class="rel-label">Granddaughter of</p>
             <p id="familySecondGrand" class="family-names"></p>
-            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" />
+            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" decoding="async" />
           </div>
         </div>
         <div class="scroll-hardware scroll-hardware--bottom" aria-hidden="true">
@@ -245,8 +250,8 @@
       <div class="maroon-pattern" aria-hidden="true"></div>
       
       <!-- LARGE UPPER CORNER FLORAL EMBROIDERIES WITH DANGLING TASSELS -->
-      <img class="ceremony-corner ceremony-corner--left art" data-art="ceremony-corner-embroidered-v2.webp" data-fallback="assets/fallback/flower.svg" src="assets/media/ceremony-corner-embroidered-v2.webp" alt="" aria-hidden="true" />
-      <img class="ceremony-corner ceremony-corner--right art" data-art="ceremony-corner-embroidered-v2.webp" data-fallback="assets/fallback/flower.svg" src="assets/media/ceremony-corner-embroidered-v2.webp" alt="" aria-hidden="true" />
+      <img class="ceremony-corner ceremony-corner--left art" data-art="ceremony-corner-embroidered-v2.webp" data-fallback="assets/fallback/flower.svg" src="assets/media/ceremony-corner-embroidered-v2.webp" alt="" aria-hidden="true" decoding="async" />
+      <img class="ceremony-corner ceremony-corner--right art" data-art="ceremony-corner-embroidered-v2.webp" data-fallback="assets/fallback/flower.svg" src="assets/media/ceremony-corner-embroidered-v2.webp" alt="" aria-hidden="true" decoding="async" />
 
       <div class="ceremonies-heading-wrap reveal">
         <h2 id="ceremoniesTitle" class="ceremonies-title">Ceremonies</h2>
@@ -283,7 +288,7 @@
           <div class="silk-scroll__inner">
             <h2 id="complimentsLead" class="scroll-name scroll-name--small">With Best Compliments From:</h2>
             <div id="complimentsLines" class="compliments-lines"></div>
-            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" />
+            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" decoding="async" />
           </div>
         </div>
         <div class="scroll-hardware scroll-hardware--bottom" aria-hidden="true">
@@ -309,7 +314,7 @@
           <div class="silk-scroll__inner">
             <h2 id="noteLead" class="scroll-name scroll-name--small">Things to Note</h2>
             <p id="noteText" class="scroll-note-text"></p>
-            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" />
+            <img class="scroll-ornament art" data-art="divider.webp" data-fallback="assets/fallback/divider.svg" src="assets/media/divider.webp" alt="" decoding="async" />
           </div>
         </div>
         <div class="scroll-hardware scroll-hardware--bottom" aria-hidden="true">

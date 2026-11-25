@@ -1,11 +1,6 @@
 /**
  * SHAHI PATRA • Date Reveal Celebration System
- * Multi-phase festive choreography:
- * 1. Golden shimmer sweep across date shields
- * 2. Cascading shower of pink, red, and gold flower petals drifting down from the crest
- * 3. Two compact festive sky spark/firework bursts behind/above the date plaques
- * 4. Gentle golden stardust drift
- * 5. Complete DOM cleanup after 2.8s
+ * Multi-phase festive choreography with visibility-paused foreground cleanup clock.
  */
 (() => {
   'use strict';
@@ -29,12 +24,8 @@
     if (!root) return;
     played = true;
 
-    // Phase 1: Shimmer sweep across date plaques
     const plaques = root.querySelector('.date-plaques');
-    if (plaques) {
-      plaques.classList.add('shimmer-active');
-      window.setTimeout(() => plaques.classList.remove('shimmer-active'), 1600);
-    }
+    if (plaques) plaques.classList.add('shimmer-active');
 
     const rain = document.createElement('div');
     rain.className = 'shahi-date-rain';
@@ -42,14 +33,7 @@
     root.append(rain);
 
     const random = seededRandom(20261011);
-
-    // Phase 2: Flower Petal Shower (Gold, Pink, Ruby Red, Amber)
-    const petalColors = [
-      'gold',      // Warm golden silk
-      'pink',      // Delicate lotus pink
-      'ruby',      // Royal wedding crimson
-      'amber'      // Antique marigold
-    ];
+    const petalColors = ['gold', 'pink', 'ruby', 'amber'];
 
     const mobile = window.innerWidth <= 640;
     const petalCount = mobile ? 32 : 54;
@@ -68,42 +52,102 @@
       rain.append(petal);
     }
 
-    // Phase 3: Two Compact Festive Sky Spark/Firework Bursts
     const burstCenters = [
-      { x: mobile ? 23 : 29, y: 22, delay: 475 },
-      { x: mobile ? 77 : 71, y: 17, delay: 770 }
+      { x: mobile ? 23 : 29, y: 22, delay: 475, spawned: false },
+      { x: mobile ? 77 : 71, y: 17, delay: 770, spawned: false }
     ];
-
     const sparkCountPerBurst = mobile ? 14 : 22;
 
-    burstCenters.forEach(burst => {
-      window.setTimeout(() => {
-        if (!rain.isConnected) return;
-        for (let i = 0; i < sparkCountPerBurst; i++) {
-          const spark = document.createElement('span');
-          spark.className = 'shahi-firework-spark';
-          const angle = (i / sparkCountPerBurst) * Math.PI * 2 + (random() - 0.5) * 0.3;
-          const distance = mobile ? 22 + random() * 39 : 42 + random() * 69;
-          const tx = Math.cos(angle) * distance;
-          const ty = Math.sin(angle) * distance + 12; // slight gravity pull
-          const isGold = i % 2 === 0;
+    const spawnBurst = burst => {
+      if (burst.spawned || !rain.isConnected) return;
+      burst.spawned = true;
+      for (let i = 0; i < sparkCountPerBurst; i += 1) {
+        const spark = document.createElement('span');
+        spark.className = 'shahi-firework-spark';
+        const angle = (i / sparkCountPerBurst) * Math.PI * 2 + (random() - 0.5) * 0.3;
+        const distance = mobile ? 22 + random() * 39 : 42 + random() * 69;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance + 12;
+        const isGold = i % 2 === 0;
 
-          spark.style.left = `${burst.x}%`;
-          spark.style.top = `${burst.y}%`;
-          spark.style.setProperty('--tx', `${tx.toFixed(1)}px`);
-          spark.style.setProperty('--ty', `${ty.toFixed(1)}px`);
-          spark.style.setProperty('--spark-color', isGold ? '#bf6e1d' : '#af3b59');
-          spark.style.setProperty('--spark-glow', isGold ? 'rgba(255, 215, 0, 0.85)' : 'rgba(255, 80, 120, 0.75)');
-          spark.style.setProperty('--dur', `${(1000 + random() * 400).toFixed(0)}ms`);
-          rain.append(spark);
-        }
-      }, burst.delay);
-    });
+        spark.style.left = `${burst.x}%`;
+        spark.style.top = `${burst.y}%`;
+        spark.style.setProperty('--tx', `${tx.toFixed(1)}px`);
+        spark.style.setProperty('--ty', `${ty.toFixed(1)}px`);
+        spark.style.setProperty('--spark-color', isGold ? '#bf6e1d' : '#af3b59');
+        spark.style.setProperty('--spark-glow', isGold ? 'rgba(255, 215, 0, 0.85)' : 'rgba(255, 80, 120, 0.75)');
+        spark.style.setProperty('--dur', `${(1000 + random() * 400).toFixed(0)}ms`);
+        rain.append(spark);
+      }
+    };
 
-    // Clean complete removal after celebration
-    window.setTimeout(() => {
+    const CLEANUP_MS = 2850;
+    const SHIMMER_MS = 1600;
+    let elapsed = 0;
+    let resumedAt = null;
+    let pageAway = false;
+    let timer = null;
+    let cleaned = false;
+
+    function cleanup() {
+      if (cleaned) return;
+      cleaned = true;
+      clearTimeout(timer);
+      document.removeEventListener('visibilitychange', syncClock);
+      document.removeEventListener('freeze', onPageHide);
+      window.removeEventListener('pagehide', onPageHide);
+      window.removeEventListener('pageshow', onPageShow);
+      if (reducedMotion.removeEventListener) reducedMotion.removeEventListener('change', onMotionChange);
+      else reducedMotion.removeListener?.(onMotionChange);
+      root.classList.remove('is-rain-paused');
+      plaques?.classList.remove('shimmer-active');
       rain.remove();
-    }, 2800);
+    }
+
+    function syncClock() {
+      if (cleaned) return;
+      clearTimeout(timer);
+      const now = performance.now();
+      if (pageAway || document.hidden) {
+        if (resumedAt !== null) elapsed += now - resumedAt;
+        resumedAt = null;
+        root.classList.add('is-rain-paused');
+        return;
+      }
+
+      root.classList.remove('is-rain-paused');
+      resumedAt ??= now;
+      const fg = elapsed + now - resumedAt;
+
+      for (const burst of burstCenters) {
+        if (!burst.spawned && fg >= burst.delay) spawnBurst(burst);
+      }
+      if (fg >= SHIMMER_MS) plaques?.classList.remove('shimmer-active');
+      if (fg >= CLEANUP_MS) {
+        cleanup();
+        return;
+      }
+
+      const nextTargets = [CLEANUP_MS];
+      if (fg < SHIMMER_MS) nextTargets.push(SHIMMER_MS);
+      for (const burst of burstCenters) {
+        if (!burst.spawned) nextTargets.push(burst.delay);
+      }
+      const nextCue = Math.min(...nextTargets);
+      timer = setTimeout(syncClock, Math.max(16, Math.ceil(nextCue - fg)));
+    }
+
+    function onPageHide() { pageAway = true; syncClock(); }
+    function onPageShow() { pageAway = false; syncClock(); }
+    function onMotionChange() { if (reducedMotion.matches) cleanup(); }
+
+    document.addEventListener('visibilitychange', syncClock, { passive: true });
+    document.addEventListener('freeze', onPageHide, { passive: true });
+    window.addEventListener('pagehide', onPageHide, { passive: true });
+    window.addEventListener('pageshow', onPageShow, { passive: true });
+    if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', onMotionChange);
+    else reducedMotion.addListener?.(onMotionChange);
+    syncClock();
   }
 
   window.ShahiDateRain = { play };

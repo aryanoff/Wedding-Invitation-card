@@ -16,6 +16,8 @@ server.mjs
 admin.html
 admin.js
 scripts/download-assets.mjs
+scripts/verify-mobile-cinematic.mjs
+scripts/verify-continuation-full.mjs
 docs/
 README.md
 package.json

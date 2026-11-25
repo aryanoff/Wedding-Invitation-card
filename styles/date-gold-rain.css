@@ -116,9 +116,26 @@
   color: #f3ca7d;
   font-size: clamp(32px, 4.5vw, 63px);
   text-shadow: 0 2px 6px rgba(19, 0, 8, .7), 0 0 16px rgba(239, 191, 110, .15);
+  transition: none;
 }
 .date-section .reel-value span { display: block; height: 100%; }
 .date-section .date-stage.is-spinning .reel-value { filter: none; }
+.date-stage.is-css-spinning .reel-value {
+  animation: shahi-date-css-reel var(--reel-duration) cubic-bezier(.22,.68,.23,1) forwards;
+  animation-delay: var(--reel-delay, 0ms);
+}
+.date-stage.is-css-spinning.is-date-paused .reel-value {
+  animation-play-state: paused;
+}
+.date-section.is-rain-paused .shahi-date-rain__petal,
+.date-section.is-rain-paused .shahi-firework-spark,
+.date-section.is-rain-paused .date-plaques.shimmer-active .date-shield__reel::after {
+  animation-play-state: paused;
+}
+@keyframes shahi-date-css-reel {
+  from { transform: translateY(0); }
+  to { transform: translateY(var(--reel-offset)); }
+}
 .date-section .date-cta[hidden], .date-section .date-save-text[hidden] { display: none; }
 
 .date-save-text {
