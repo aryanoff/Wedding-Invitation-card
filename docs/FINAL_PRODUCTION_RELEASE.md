@@ -33,7 +33,7 @@ Release Gate Status: **PREVIEW READY FOR DEVICE VALIDATION — HELD BEFORE MERGE
 - [`scripts/silk-scroll-delay-bounce.js`](../scripts/silk-scroll-delay-bounce.js) — scroll/resize listener teardown after completion + `document.hidden` frame-delta pause accounting.
 
 ### Repository Configuration, Verification & Documentation (Excluded from Public `dist/`)
-- [`vercel.json`](../vercel.json) & [`.vercelignore`](../.vercelignore)
+- [`vercel.json`](../vercel.json), [`scripts/build-static.mjs`](../scripts/build-static.mjs) & [`.vercelignore`](../.vercelignore)
 - [`scripts/verify-mobile-cinematic.mjs`](../scripts/verify-mobile-cinematic.mjs) & [`scripts/verify-continuation-full.mjs`](../scripts/verify-continuation-full.mjs)
 - [`docs/CODEX_HANDOFF_RECOVERY.md`](CODEX_HANDOFF_RECOVERY.md), [`docs/CODEX_CONTINUATION_FINAL_QA.md`](CODEX_CONTINUATION_FINAL_QA.md), [`docs/FINAL_PRODUCTION_RELEASE.md`](FINAL_PRODUCTION_RELEASE.md)
 
